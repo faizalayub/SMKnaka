@@ -1,0 +1,130 @@
+.picker {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.picker .pc-element,
+.picker .pc-trigger {
+    display: inline-block;
+    color: #2196F3;
+    position: relative;
+    z-index: 10;
+    border: 1px solid #2196F3;
+    border-radius: 2px;
+    word-wrap: break-word;
+    cursor: default;
+    background-color: #ffffff;
+    margin-right: 7px;
+    margin-bottom: 5px;
+    padding: 0 24px 0 6px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.picker .pc-element .pc-close,
+.picker .pc-trigger .pc-close {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    margin-top: -12px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.picker .pc-element .pc-close:after,
+.picker .pc-trigger .pc-close:after {
+    content: '\2716';
+}
+
+.picker .pc-trigger:hover {
+    background-color: #2196F3;
+    color: #ffffff;
+}
+
+.picker .pc-element:not(.pc-trigger){
+    background-color: #fff;
+    color: #2196F3;
+    font-weight: bold;
+    border-radius: 20px;
+    border: 2px solid #2196F3;
+    padding: 2px 25px 3px 14px;
+}
+
+.picker .pc-select {
+    position: relative;
+    display: inline-block;
+    min-width: 165px;
+    max-width: 200px;
+}
+
+.picker .pc-select .pc-trigger {
+    cursor: pointer;
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border: 2px solid #2196F3;
+    font-weight: bold;
+}
+
+.picker .pc-select .pc-list {
+    position: absolute;
+    text-align: left;
+    left: 0;
+    top: calc(100% - 6px);
+    width: 100%;
+    border: 1px solid #2196F3;
+    z-index: 11;
+    background-color: #ffffff;
+}
+
+.picker .pc-select .pc-list input[type="search"] {
+    width: 100%;
+    outline: none;
+    color: #2196F3;
+    border: none;
+    position: relative;
+    background-color: #DDDDDD;
+    border-bottom: 2px solid #666;
+    padding-left: 8px;
+}
+
+.picker .pc-select .pc-list ul {
+    margin: 0;
+    padding: 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.picker .pc-select .pc-list li {
+    display: block;
+    list-style: none;
+    padding: 0 0 0 8px;
+    cursor: pointer;
+    color: #2196F3;
+    word-wrap: break-word;
+}
+
+.picker .pc-select .pc-list li:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.picker .pc-select .pc-list li:hover {
+    background-color: #2196F3;
+    color: #ffffff;
+}
+
+.picker .pc-select .pc-list li.not-found {
+    font-style: italic;
+    text-align: center;
+    cursor: default;
+}
+
+.picker .pc-select .pc-list li .searched {
+    font-weight: bold;
+}

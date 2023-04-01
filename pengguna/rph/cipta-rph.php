@@ -20,6 +20,9 @@
 
         <!-- Sweetalert core CSS -->
         <link href="../../vendor/sweetalert/css/sweetalert.css" rel="stylesheet">
+
+        <!-- Chips Picker core CSS -->
+        <link href="../../vendor/chipspicker/picker.css" rel="stylesheet">
         
         <!-- Additional CSS Files -->
         <link rel="stylesheet" href="../../assets/css/fontawesome.css">
@@ -47,6 +50,28 @@
         <link rel="stylesheet" href="../../plugins/daterangepicker/daterangepicker.css">
         <!-- summernote -->
         <link rel="stylesheet" href="../../plugins/summernote/summernote-bs4.min.css">
+
+        <style>
+            .form-style{
+                background: var(--bs-gray-300);
+                border-radius: 8px;
+                padding: 1em;
+                border: solid 1px var(--bs-gray-400);
+                box-shadow: 1px 3px 5px 2px var(--bs-gray-400);
+            }
+
+            .button-footer-container{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-top: solid 1px var(--bs-gray-400);
+                padding: 1em;
+                position: sticky;
+                bottom: 0;
+                background: var(--bs-gray-300);
+                z-index: 99;
+            }
+        </style>
 </head>
 <body>
     <header class="header-area header-sticky">
@@ -87,21 +112,12 @@
                 <div class="container" style="margin-top:1em;">
                     <div class="row mb-3"><a class="primary">RANCANGAN PELAJARAN HARIAN</a></div>
 
-                    <form class="form-group" method="POST"> 
+                    <form class="form-group form-style" method="POST"> 
                         <table class="table table-bordered">
                             <tr>
                                 <th>TINGKATAN</th>
                                 <td colspan="10">
-                                    <select name="ref_school_level" id="tingkatan_id" onchange="panggilTingkatan(this.value)" class="form-control">
-                                        <option value="">Pilih Tingkatan</option>
-                                        <?php
-                                            $rsn1 = mysqli_query($sambung, "SELECT * FROM tingkatan");
-
-                                            while ($rw1 = mysqli_fetch_array($rsn1)){
-                                                echo '<option value="'.$rw1['id'].'">'.$rw1['id'].'-'.$rw1['nama_tingkatan'].'</option>';
-                                            }
-                                        ?>
-                                    </select>
+                                    <select name="ref_school_level" id="tingkatan_id" class="form-control"></select>
                                 </td>
                             </tr>
                             <tr>
@@ -112,15 +128,7 @@
                                 
                                 <th>SUBJEK</th>
                                 <td colspan="10">
-                                    <select name="ref_subject" id="subjek" class="form-control" required>
-                                        <?php
-                                            $rsn1 = mysqli_query($sambung, "SELECT * FROM rph_subjek");
-
-                                            while ($rw1 = mysqli_fetch_array($rsn1)){
-                                                echo '<option value="'.$rw1['id'].'">'.$rw1['subjek'].'</option>';
-                                            }
-                                        ?>
-                                    </select>
+                                    <select name="ref_subject" id="subjek" class="form-control" required></select>
                                 </td>
                             </tr>
                             <tr>
@@ -139,33 +147,41 @@
                                     <input type="time" name="end_time" class="form-control" placeholder="Masa Tamat" required/>
                                 </td>
                             </tr>
-                            <tr id="date-selected-info">
+                            <tr>
+                                <th>MINGGU</th>
+                                <td>
+                                    <select name="ref_educationweek" class="form-control" required></select>
+                                </td>
+                                
+                                <th>HARI</th>
                                 <td colspan="10">
-                                    <div class="alert alert-info" role="alert"></div>
+                                    <input id="date-selected-info" type="text" readonly value="-" class="form-control"/>
                                 </td>
                             </tr>
                             <tr>
                                 <th>TEMA</th>
                                 <td colspan="10">
-                                    <input class="form-control" name="subject_theme" type="text" required />
+                                    <input class="form-control" name="subject_theme" type="text" required list="subject_theme" placeholder="Masukkan Tema Subjek" autocomplete="off" />
+                                    <datalist id="subject_theme"></datalist>
                                 </td>
                             </tr>
                                 <tr>
                                 <th>TAJUK</th>
                                 <td colspan="10">
-                                    <input class="form-control" name="subject_title" type="text" required />
+                                    <input class="form-control" name="subject_title" type="text" required list="subject_title" placeholder="Masukkan Tajuk Subjek" autocomplete="off" />
+                                    <datalist id="subject_title"></datalist>
                                 </td>
                             </tr>
                             <tr>
                                 <th>STANDARD KANDUNGAN</th>
                                 <td colspan="10">
-                                    <input class="form-control" name="content_standard" type="text" required />
+                                    <input class="form-control" name="content_standard" type="text" required placeholder="Masukkan Standard Kandungan" autocomplete="off"/>
                                 </td>
                             </tr> 
                             <tr>
                                 <th>STANDARD PEMBELAJARAN</th>
                                 <td colspan="10">
-                                <input class="form-control" name="subject_standard" type="text" required />
+                                <input class="form-control" name="subject_standard" type="text" required placeholder="Masukkan Standard Pembelajaran" autocomplete="off"/>
                                 </td>
                             </tr>
                             <tr>
@@ -182,20 +198,30 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th>BAHAN BANTUAN</th>
+                                <th>BBM</th>
                                 <td colspan="10">
-                                    heredd
+                                    <select name="bbm_picker" multiple>
+                                        <option value="" disabled hidden>-- Pilih BBM --</option>
+                                    </select>
                                 </td>
                             </tr>
                             <tr>
                                 <th>REFLEKSI</th>
                                 <td colspan="10">
-                                    <input name="subject_outcomes" class="form-control" id="tema" type="text" required />
+                                    <input name="subject_outcomes" class="form-control" id="tema" type="text" required placeholder="Masukkan Refleksi" autocomplete="off" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>GURU PENILAI</th>
+                                <td colspan="10">
+                                    <select name="ref_reviewer" class="form-control" required></select>
                                 </td>
                             </tr>
                         </table>
 
-                        <button class="btn btn-success" type="submit" name="btnSimpan"> Simpan RPH </button>
+                        <div class="button-footer-container">
+                            <button class="btn btn-success" type="submit" name="btnSimpan"> Simpan RPH </button>
+                        </div>
                     </form>  
                 </div>
             </div>
@@ -203,12 +229,12 @@
         </div>
     </section>
     
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-    <script src="../../ckeditor/ckeditor.js"></script>
     <script src="../../vendor/jquery/jquery.min.js"></script>
     <script src="../../vendor/sweetalert/js/sweetalert.js"></script>
     <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../vendor/chipspicker/picker.min.js" defer></script>
+    <script src="../../ckeditor/ckeditor.js"></script>
     <script src="../../assets/js/isotope.min.js"></script>
     <script src="../../assets/js/owl-carousel.js"></script>
     <script src="../../assets/js/lightbox.js"></script>
@@ -217,82 +243,156 @@
     <script src="../../assets/js/slick-slider.js"></script>
     <script src="../../assets/js/custom.js"></script>
 
-    <script type="text/javascript">
-        let dateInfoAlert = $('#date-selected-info');
-        let dayStringLabel = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
+    <script type = "text/javascript">
+        let datalistTheme  = $('datalist[id="subject_theme"]');
+        let datalistTitle  = $('datalist[id="subject_title"]');
 
-        function panggilTingkatan(str) {
-            document.getElementById("kelasId").innerHTML = "";
+        let dropdownEduLevel  = $('[name="ref_school_level"]');
+        let dropdownClassroom = $('[name="ref_classroom"]');
+        let dropdownSubject   = $('[name="ref_subject"]');
+        let dropdownReviewer  = $('[name="ref_reviewer"]');
+        let dropdownEduWeek   = $('[name="ref_educationweek"]');
 
-            if(str != ""){
-                let xmlhttp = new XMLHttpRequest();
+        let subjectTheme      = $('[name="subject_theme"]');
+        let subjectTitle      = $('[name="subject_title"]');
+        let effectiveDate     = $('[name="effective_date"]');
+        let dateInfoAlert     = $('#date-selected-info');
+        let dayStringLabel    = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
 
-                xmlhttp.onreadystatechange = function() {
-                    if (this.readyState == 4 && this.status == 200){
-                        document.getElementById("kelasId").innerHTML = this.responseText;
-                        document.getElementById("subjekId").style.display = 'block';
-
+        let doRequest = function(param = {}){
+            return new Promise(resolve => {
+                $.ajax({
+                    url: "../../_API.php",
+                    type: 'GET',
+                    data: { ...param },
+                    success: function({ data }){
+                        resolve(data);
                     }
-                };
+                })
+            })
+        };
+        
+        let setupReviewerDropdown = function(){
+            dropdownReviewer.html('');
 
-                xmlhttp.open("GET","panggilKelas.php?q="+str,true);
-                xmlhttp.send();
-            }
-        }
+            dropdownReviewer.append(`<option selected value=''>Pilih Guru Penilai</option>`);
 
-        function panggilSubjek1 (str){
-            if(str != ''){
-                let xmlhttp = new XMLHttpRequest();
+            doRequest({ function: 'usersByRole', role: 2 }).then(collect => {
+                collect.forEach(c => {
+                    dropdownReviewer.append(`<option value="${ c.id }">${ c.fullname }</option>`);
+                })
+            });
+        };
 
-                xmlhttp.onreadystatechange = function(){
-                    if (this.readyState == 4 && this.status == 200){
-                        document.getElementById('listSubjek').innerHTML = this.responseText;
-                        document.getElementById("subjek").style.display = 'block';
-                    } 
-                };
+        let setupLevelDropdown = function(){
+            dropdownEduLevel.append(`<option selected value=''>Pilih Tingkatan</option>`);
+            dropdownClassroom.append(`<option selected value=''>Pilih Kelas</option>`);
+            dropdownSubject.append(`<option selected value=''>Pilih Subjek</option>`);
 
-                xmlhttp.open("GET", "panggilSubjek.php?q=" + str, true);
-                xmlhttp.send();
-            }
-        }
+            dropdownEduLevel.on('change', async function(e){
+                let value = e.target.value;
+                let getClassroom = await doRequest({ function: 'classroomByLevel', id: value });
 
-        $(function(){
-            CKEDITOR.replace('editor-objektif');
-            CKEDITOR.replace('editor-aktiviti');
+                subjectTheme.val('');
+                subjectTitle.val('');
+                dropdownSubject.html('');
+                dropdownClassroom.html('');
 
-            $("#btnGet").click(function () {
-                //Create an Array.
-                var selected = new Array();
-
-                //Reference the CheckBoxes and insert the checked CheckBox value in Array.
-                $("#tblFruits input[type=checkbox]:checked").each(function () {
-                    selected.push(this.value);
+                getClassroom.forEach(c => {
+                    dropdownClassroom.append(`<option value="${ c.id }">${ c.keterangan }</option>`);
                 });
 
-                //Display the selected CheckBox values.
-                if (selected.length > 0) {
-                    alert("Selected values: " + selected.join(","));
-                }
+                dropdownClassroom.trigger('change');
             });
 
-            $('[name="effective_date"]').on('change', function(e){
-                let dateModel = e.target.value;
-                let contentTextEl = dateInfoAlert.find('.alert'); 
+            doRequest({ function: 'collectLevel' }).then(collect => {
+                collect.forEach(c => {
+                    dropdownEduLevel.append(`<option value="${ c.id }">${ c.id } - ${ c.nama_tingkatan }</option>`);
+                })
+            });
+        };
+
+        let setupClassroomDropdown = function(){
+            dropdownClassroom.on('change', async function(e){
+                let value = e.target.value;
+                let getSubjects = await doRequest({ function: 'subjectByLevel', id: dropdownEduLevel.val() });
+
+                dropdownSubject.html('');
+
+                getSubjects.forEach(c => {
+                    dropdownSubject.append(`<option value="${ c.id }">${ c.subjek }</option>`);
+                })
+            });
+        };
+
+        let setupSubjectDropdown = function(){
+            dropdownSubject.on('change', async function(e){
+                let value = e.target.value;
+                let getTheme = await doRequest({ function: 'themeBySubject', level: dropdownEduLevel.val(), subject: dropdownSubject.val() });
+                let getTitle = await doRequest({ function: 'titleBySubject', level: dropdownEduLevel.val(), subject: dropdownSubject.val() });
+
+                datalistTheme.html('');
+                datalistTitle.html('');
+
+                getTheme.forEach(c => {
+                    datalistTheme.append(`<option value="${ c.tema }">`);
+                });
+
+                getTitle.forEach(c => {
+                    datalistTitle.append(`<option value="${ c.tajuk }">`);
+                });
+            });
+        };
+
+        let setupDatePicker = function(){
+            effectiveDate.on('change', function(e){
+                let dateModel = e.target.value; 
 
                 if(!dateModel || dateModel == ''){
-                    dateInfoAlert.hide();
+                    dateInfoAlert.val('-');
                 }else{
                     let $dateObject = moment(dateModel, 'YYYY-MM-DD');
                     let $day        = $dateObject.format('d');
                     let $weekNumber = $dateObject.week();
 
-                    contentTextEl.html(`Anda telah memilih hari <b>${ dayStringLabel[$day] }</b> & <b>Minggu ke ${ $weekNumber }</b>`);
-
-                    dateInfoAlert.show();
+                    dateInfoAlert.val(dayStringLabel[$day]);
                 }
             });
 
-            $('[name="effective_date"]').trigger('change');
+            effectiveDate.trigger('change');
+        };
+
+        let setupBBM = async function(){
+            let getBBM = await doRequest({ function: 'collectBBM' });
+
+            getBBM.forEach(c => {
+                $('[name="bbm_picker"]').append(`<option value="${ c.id }">${ c.barang }</option>`);
+            });
+
+            $('[name="bbm_picker"]').picker();
+        };
+
+        $(document).ready(function(){
+            CKEDITOR.replace('editor-objektif');
+            CKEDITOR.replace('editor-aktiviti');
+
+            //# Dropdown Init (Tingkatan)
+            setupLevelDropdown();
+
+            //# Dropdown Init (Classroom)
+            setupClassroomDropdown();
+
+            //# Dropdown Init (Subject)
+            setupSubjectDropdown();
+            
+            //# Dropdown Init (Reviewer)
+            setupReviewerDropdown();
+
+            //# Datepicker Init (Effective Date)
+            setupDatePicker();
+
+            //# Selectpicker Init (BBM)
+            setupBBM();
         });
     </script>
 
