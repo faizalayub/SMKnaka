@@ -284,6 +284,18 @@
             });
         };
 
+        let setupEducationWeekDropdown = function(){
+            dropdownEduWeek.html('');
+
+            dropdownEduWeek.append(`<option selected value=''>Pilih Minggu</option>`);
+
+            doRequest({ function: 'collectEducationWeeks' }).then(collect => {
+                collect.forEach(c => {
+                    dropdownEduWeek.append(`<option value="${ c.id_minggu }">${ c.minggu }</option>`);
+                })
+            });
+        };
+
         let setupLevelDropdown = function(){
             dropdownEduLevel.append(`<option selected value=''>Pilih Tingkatan</option>`);
             dropdownClassroom.append(`<option selected value=''>Pilih Kelas</option>`);
@@ -374,10 +386,14 @@
 
         $(document).ready(function(){
             CKEDITOR.replace('editor-objektif');
+
             CKEDITOR.replace('editor-aktiviti');
 
             //# Dropdown Init (Tingkatan)
             setupLevelDropdown();
+
+            //# Dropdown Init (Weeks)
+            setupEducationWeekDropdown();
 
             //# Dropdown Init (Classroom)
             setupClassroomDropdown();

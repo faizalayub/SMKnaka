@@ -64,6 +64,14 @@ class Controller {
         echo json_encode($response);
     }
 
+    function collectEducationWeeks(){
+        $response = (object) ['status' => 200, 'data' => [], 'message' => ''];
+        $response->data = $this->fetchRows("SELECT * FROM rph_minggu");
+
+        header('Content-type: application/json');
+        echo json_encode($response);
+    }
+
     function usersByRole($param){
         $response = (object) ['status' => 200, 'data' => [], 'message' => ''];
 
