@@ -1,8 +1,17 @@
 <?php
     session_start();
+    include '../../_API.php';
     require_once('../../panggil-database.php');
 
+    $dataset = (object)[];
+    $API           = new Controller('RETURN');
+    $id            = (isset($_GET['id']) ? $_GET['id'] : null);
+    $mode          = (isset($_GET['id']) ? 'update' : 'create');
     $userSessionID = $_SESSION['id'];
+
+    if($mode == 'update'){
+        $dataset = $API->fetchRow("SELECT * FROM `rph_rancangan` WHERE id = ".$id);
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -53,22 +62,20 @@
 
         <style>
             .form-style{
-                background: var(--bs-gray-300);
-                border-radius: 8px;
-                padding: 1em;
-                border: solid 1px var(--bs-gray-400);
-                box-shadow: 1px 3px 5px 2px var(--bs-gray-400);
+                background: var(--bs-light);
+                border-radius: 3px;
+                padding: 2em;
+                border: solid 1px var(--bs-gray-200);
             }
 
             .button-footer-container{
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                border-top: solid 1px var(--bs-gray-400);
                 padding: 1em;
                 position: sticky;
                 bottom: 0;
-                background: var(--bs-gray-300);
+                background: var(--bs-light);
                 z-index: 99;
             }
         </style>
@@ -110,10 +117,19 @@
 
             <div class="content">
                 <div class="container" style="margin-top:1em;">
-                    <div class="row mb-3"><a class="primary">RANCANGAN PELAJARAN HARIAN</a></div>
+
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="../index.php">UTAMA</a></li>
+                            <li class="breadcrumb-item"><a href="cipta-rph.php">PELAJARAN HARIAN</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                <?php echo ($mode == 'create' ? 'RANCANGAN' : 'KEMASKINI');?>
+                            </li>
+                        </ol>
+                    </nav>
 
                     <form class="form-group form-style" method="POST"> 
-                        <table class="table table-bordered">
+                        <table class="table">
                             <tr>
                                 <th>TINGKATAN</th>
                                 <td colspan="10">
@@ -134,17 +150,32 @@
                             <tr>
                                 <th>TARIKH</th>
                                 <td>
-                                    <input type="date" name="effective_date" class="form-control" required />
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text fas fa-calendar"></span>
+                                        </div>
+                                        <input type="date" name="effective_date" class="form-control" required/>
+                                    </div>
                                 </td>
 
                                 <th>MASA MULA</th>
                                 <td>
-                                    <input type="time" name="start_time" class="form-control" placeholder="Masa Mula" required/>
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text fas fa-clock"></span>
+                                        </div>
+                                        <input type="time" name="start_time" class="form-control" placeholder="Masa Mula" required/>
+                                    </div>
                                 </td>
 
                                 <th>MASA AKHIR</th>
                                 <td>
-                                    <input type="time" name="end_time" class="form-control" placeholder="Masa Tamat" required/>
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text fas fa-clock"></span>
+                                        </div>
+                                        <input type="time" name="end_time" class="form-control" placeholder="Masa Tamat" required/>
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
@@ -203,6 +234,7 @@
                                     <select name="bbm_picker" multiple>
                                         <option value="" disabled hidden>-- Pilih BBM --</option>
                                     </select>
+                                    <input type="hidden" name="teaching_bbm" value=""/>
                                 </td>
                             </tr>
                             <tr>
@@ -244,6 +276,9 @@
     <script src="../../assets/js/custom.js"></script>
 
     <script type = "text/javascript">
+        var updateDataset  = JSON.parse(`<?php echo json_encode($dataset); ?>`);
+        var $mode = `<?php echo $mode; ?>`;
+
         let datalistTheme  = $('datalist[id="subject_theme"]');
         let datalistTitle  = $('datalist[id="subject_title"]');
 
@@ -262,7 +297,7 @@
         let doRequest = function(param = {}){
             return new Promise(resolve => {
                 $.ajax({
-                    url: "../../_API.php",
+                    url: "../../_REQUEST.php",
                     type: 'GET',
                     data: { ...param },
                     success: function({ data }){
@@ -375,13 +410,18 @@
         };
 
         let setupBBM = async function(){
+            //# https://picker.uhlir.dev/
             let getBBM = await doRequest({ function: 'collectBBM' });
 
             getBBM.forEach(c => {
                 $('[name="bbm_picker"]').append(`<option value="${ c.id }">${ c.barang }</option>`);
             });
 
-            $('[name="bbm_picker"]').picker();
+            let instance = $('[name="bbm_picker"]').picker();
+
+            instance.on('sp-change', function(){
+                $('[name="teaching_bbm"]').val(instance.val().join(','));
+            });
         };
 
         $(document).ready(function(){
@@ -389,26 +429,28 @@
 
             CKEDITOR.replace('editor-aktiviti');
 
-            //# Dropdown Init (Tingkatan)
-            setupLevelDropdown();
+            if($mode == 'create'){
+                //# Dropdown Init (Tingkatan)
+                setupLevelDropdown();
 
-            //# Dropdown Init (Weeks)
-            setupEducationWeekDropdown();
+                //# Dropdown Init (Weeks)
+                setupEducationWeekDropdown();
 
-            //# Dropdown Init (Classroom)
-            setupClassroomDropdown();
+                //# Dropdown Init (Classroom)
+                setupClassroomDropdown();
 
-            //# Dropdown Init (Subject)
-            setupSubjectDropdown();
-            
-            //# Dropdown Init (Reviewer)
-            setupReviewerDropdown();
+                //# Dropdown Init (Subject)
+                setupSubjectDropdown();
+                
+                //# Dropdown Init (Reviewer)
+                setupReviewerDropdown();
 
-            //# Datepicker Init (Effective Date)
-            setupDatePicker();
+                //# Datepicker Init (Effective Date)
+                setupDatePicker();
 
-            //# Selectpicker Init (BBM)
-            setupBBM();
+                //# Selectpicker Init (BBM)
+                setupBBM();
+            }
         });
     </script>
 
@@ -420,6 +462,9 @@
             $effective_date    = (isset($_POST['effective_date']) ? $_POST['effective_date'] : '');
             $start_time        = (isset($_POST['start_time']) ? $_POST['start_time'] : '');
             $end_time          = (isset($_POST['end_time']) ? $_POST['end_time'] : '');
+            $teaching_bbm      = (isset($_POST['teaching_bbm']) ? $_POST['teaching_bbm'] : []);
+            $ref_reviewer      = (isset($_POST['ref_reviewer']) ? $_POST['ref_reviewer'] : '');
+            $ref_educationweek = (isset($_POST['ref_educationweek']) ? $_POST['ref_educationweek'] : '');
             $subject_theme     = (isset($_POST['subject_theme']) ? $_POST['subject_theme'] : '');
             $subject_title     = (isset($_POST['subject_title']) ? $_POST['subject_title'] : '');
             $content_standard  = (isset($_POST['content_standard']) ? $_POST['content_standard'] : '');
@@ -428,9 +473,9 @@
             $subject_activity  = (isset($_POST['subject_activity']) ? $_POST['subject_activity'] : '');
             $subject_outcomes  = (isset($_POST['subject_outcomes']) ? $_POST['subject_outcomes'] : '');
     
-            $tableColumns = "`id`, `id_pengguna`, `id_kelasLengkap`, `id_subjek`, `tarikh`, `masa_mula`, `masa_tamat`, `tema`, `tajuk`, `standard_kandungan`, `standard_pembelajaran`, `objektif`, `aktiviti`, `refleksi`, `bahan_bantuan`, `created_date`, `changes_date`";
+            $tableColumns = "`id`, `id_pengguna`, `id_kelasLengkap`, `id_subjek`, `tarikh`, `masa_mula`, `masa_tamat`, `tema`, `tajuk`, `standard_kandungan`, `standard_pembelajaran`, `objektif`, `aktiviti`, `refleksi`, `bahan_bantuan`, `created_date`, `changes_date`, `bbm`, `penilai`, `minggu_sekolah`, `id_tingkatan`";
             
-            $tableValues = "NULL, '$userSessionID', '$ref_classroom', '$ref_subject', '$effective_date', '$start_time', '$end_time', '$subject_theme', '$subject_title', '$content_standard', '$subject_standard', '$subject_objective', '$subject_activity', '$subject_outcomes', '', current_timestamp(), current_timestamp()";
+            $tableValues = "NULL, '$userSessionID', '$ref_classroom', '$ref_subject', '$effective_date', '$start_time', '$end_time', '$subject_theme', '$subject_title', '$content_standard', '$subject_standard', '$subject_objective', '$subject_activity', '$subject_outcomes', '', current_timestamp(), current_timestamp(), '$teaching_bbm', '$ref_reviewer', '$ref_educationweek', '$ref_school_level'";
     
             if(mysqli_query($sambung, "INSERT INTO `rph_rancangan` ($tableColumns) VALUES ($tableValues)")){
                 echo '<script>

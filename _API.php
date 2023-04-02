@@ -1,19 +1,11 @@
 <?php
 class Controller {
-    public function __construct(){
-        $params = json_decode(json_encode($_GET));
-        $function = (isset($_GET['function']) ? $_GET['function'] : '');
-        
-        $this->host     = 'localhost';
-        $this->dbname   = 'dbsmkn';
-        $this->dbuser   = 'root';
-        $this->dbpass   = '';
-
-        if(method_exists($this, $function)){
-            $response = $this->$function($params);
-        }else{
-            echo "$function not exist";
-        }
+    public function __construct($return_mode){
+        $this->host       = 'localhost';
+        $this->dbname     = 'dbsmkn';
+        $this->dbuser     = 'root';
+        $this->dbpass     = '';
+        $this->returnType = ($return_mode == 'REQUEST' ? 1 : 0);
     }
 
     function connect(){
@@ -24,6 +16,17 @@ class Controller {
         }else{
             return $sambung;
         }
+    }
+
+    function fetchRow($query){
+        $response = (object) [];
+        $connect = $this->connect();
+        $prepareQuery = mysqli_query($connect, $query);
+        $collect = mysqli_fetch_array($prepareQuery, MYSQLI_ASSOC);
+        $response = json_decode(json_encode($collect));
+        $connect->close();
+
+        return $response;
     }
 
     function fetchRows($query){
@@ -44,32 +47,48 @@ class Controller {
         $response = (object) ['status' => 200, 'data' => [], 'message' => ''];
         $response->data = $this->fetchRows("SELECT * FROM rph_subjek");
 
-        header('Content-type: application/json');
-        echo json_encode($response);
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response->data;
+        }
     }
 
     function collectLevel(){
         $response = (object) ['status' => 200, 'data' => [], 'message' => ''];
         $response->data = $this->fetchRows("SELECT * FROM tingkatan");
 
-        header('Content-type: application/json');
-        echo json_encode($response);
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response->data;
+        }
     }
 
     function collectBBM(){
         $response = (object) ['status' => 200, 'data' => [], 'message' => ''];
         $response->data = $this->fetchRows("SELECT * FROM tb_bbm");
 
-        header('Content-type: application/json');
-        echo json_encode($response);
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response->data;
+        }
     }
 
     function collectEducationWeeks(){
         $response = (object) ['status' => 200, 'data' => [], 'message' => ''];
         $response->data = $this->fetchRows("SELECT * FROM rph_minggu");
 
-        header('Content-type: application/json');
-        echo json_encode($response);
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response->data;
+        }
     }
 
     function usersByRole($param){
@@ -84,8 +103,12 @@ class Controller {
             $response->message = 'ID not found';
         }
 
-        header('Content-type: application/json');
-        echo json_encode($response);
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response->data;
+        }
     }
 
     function classroomByLevel($param){
@@ -100,8 +123,12 @@ class Controller {
             $response->message = 'ID not found';
         }
 
-        header('Content-type: application/json');
-        echo json_encode($response);
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response->data;
+        }
     }
 
     function subjectByLevel($param){
@@ -116,8 +143,12 @@ class Controller {
             $response->message = 'ID not found';
         }
 
-        header('Content-type: application/json');
-        echo json_encode($response);
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response->data;
+        }
     }
 
     function themeBySubject($param){
@@ -132,8 +163,12 @@ class Controller {
             $response->message = 'Parameter not found';
         }
 
-        header('Content-type: application/json');
-        echo json_encode($response);
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response->data;
+        }
     }
 
     function titleBySubject($param){
@@ -148,9 +183,11 @@ class Controller {
             $response->message = 'Parameter not found';
         }
 
-        header('Content-type: application/json');
-        echo json_encode($response);
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response->data;
+        }
     }
 }
-
-new Controller();
