@@ -133,18 +133,78 @@
                             <tr>
                                 <th>TINGKATAN</th>
                                 <td colspan="10">
-                                    <select name="ref_school_level" id="tingkatan_id" class="form-control"></select>
+                                    <select name="ref_school_level" id="tingkatan_id" class="form-control">
+                                        <?php
+                                        if($mode == 'update'){
+                                            $options = $API->collectLevel();
+
+                                            if(!empty($options)){
+                                                array_unshift($options , (object)['id' => null]);
+
+                                                foreach($options as $value){
+                                                    $selected = (isset($dataset->id_tingkatan) && ($dataset->id_tingkatan == $value->id) ? 'selected' : '');
+
+                                                    if($value->id == null){
+                                                        echo "<option ".$selected." value=''>Pilih Tingkatan</option>";
+                                                    }else{
+                                                        echo "<option ".$selected." value='".$value->id."'>".$value->id."-".$value->nama_tingkatan ?? ''."</option>";
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        ?>
+                                    </select>
                                 </td>
                             </tr>
                             <tr>
                                 <th>KELAS</th>
                                 <td>
-                                    <select name="ref_classroom" id="kelasId" class="form-control" required></select>
+                                    <select name="ref_classroom" id="kelasId" class="form-control" required>
+                                    <?php
+                                        if($mode == 'update'){
+                                            $options = $API->classroomByLevel((object)['id' => $dataset->id_tingkatan]);
+
+                                            if(!empty($options)){
+                                                array_unshift($options , (object)['id' => null]);
+
+                                                foreach($options as $value){
+                                                    $selected = (isset($dataset->id_kelasLengkap) && ($dataset->id_kelasLengkap == $value->id) ? 'selected' : '');
+
+                                                    if($value->id == null){
+                                                        echo "<option ".$selected." value=''>Pilih Tingkatan</option>";
+                                                    }else{
+                                                        echo "<option ".$selected." value='".$value->id."'>".$value->keterangan ?? ''."</option>";
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ?>
+                                    </select>
                                 </td>
                                 
                                 <th>SUBJEK</th>
                                 <td colspan="10">
-                                    <select name="ref_subject" id="subjek" class="form-control" required></select>
+                                    <select name="ref_subject" id="subjek" class="form-control" required>
+                                    <?php
+                                        if($mode == 'update'){
+                                            $options = $API->subjectByLevel((object)['id' => $dataset->id_tingkatan]);
+
+                                            if(!empty($options)){
+                                                array_unshift($options , (object)['id' => null]);
+
+                                                foreach($options as $value){
+                                                    $selected = (isset($dataset->id_subjek) && ($dataset->id_subjek == $value->id) ? 'selected' : '');
+
+                                                    if($value->id == null){
+                                                        echo "<option ".$selected." value=''>Pilih Subjek</option>";
+                                                    }else{
+                                                        echo "<option ".$selected." value='".$value->id."'>".$value->subjek ?? ''."</option>";
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ?>
+                                    </select>
                                 </td>
                             </tr>
                             <tr>
@@ -154,7 +214,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text fas fa-calendar"></span>
                                         </div>
-                                        <input type="date" name="effective_date" class="form-control" required/>
+                                        <input type="date" name="effective_date" class="form-control" required value="<?php echo (isset($dataset->tarikh) ? $dataset->tarikh : ''); ?>"/>
                                     </div>
                                 </td>
 
@@ -164,7 +224,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text fas fa-clock"></span>
                                         </div>
-                                        <input type="time" name="start_time" class="form-control" placeholder="Masa Mula" required/>
+                                        <input type="time" name="start_time" class="form-control" placeholder="Masa Mula" required value="<?php echo (isset($dataset->masa_mula) ? $dataset->masa_mula : ''); ?>"/>
                                     </div>
                                 </td>
 
@@ -174,14 +234,34 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text fas fa-clock"></span>
                                         </div>
-                                        <input type="time" name="end_time" class="form-control" placeholder="Masa Tamat" required/>
+                                        <input type="time" name="end_time" class="form-control" placeholder="Masa Tamat" required value="<?php echo (isset($dataset->masa_tamat) ? $dataset->masa_tamat : ''); ?>"/>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <th>MINGGU</th>
                                 <td>
-                                    <select name="ref_educationweek" class="form-control" required></select>
+                                    <select name="ref_educationweek" class="form-control" required>
+                                    <?php
+                                        if($mode == 'update'){
+                                            $options = $API->collectEducationWeeks();
+
+                                            if(!empty($options)){
+                                                array_unshift($options , (object)['id_minggu' => null]);
+
+                                                foreach($options as $value){
+                                                    $selected = (isset($dataset->minggu_sekolah) && ($dataset->minggu_sekolah == $value->id_minggu) ? 'selected' : '');
+
+                                                    if($value->id_minggu == null){
+                                                        echo "<option ".$selected." value=''>Pilih Subjek</option>";
+                                                    }else{
+                                                        echo "<option ".$selected." value='".$value->id_minggu."'>".$value->minggu ?? ''."</option>";
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ?>
+                                    </select>
                                 </td>
                                 
                                 <th>HARI</th>
@@ -192,27 +272,27 @@
                             <tr>
                                 <th>TEMA</th>
                                 <td colspan="10">
-                                    <input class="form-control" name="subject_theme" type="text" required list="subject_theme" placeholder="Masukkan Tema Subjek" autocomplete="off" />
+                                    <input class="form-control" name="subject_theme" type="text" required list="subject_theme" placeholder="Masukkan Tema Subjek" autocomplete="off" value="<?php echo (isset($dataset->tema) ? $dataset->tema : ''); ?>"/>
                                     <datalist id="subject_theme"></datalist>
                                 </td>
                             </tr>
                                 <tr>
                                 <th>TAJUK</th>
                                 <td colspan="10">
-                                    <input class="form-control" name="subject_title" type="text" required list="subject_title" placeholder="Masukkan Tajuk Subjek" autocomplete="off" />
+                                    <input class="form-control" name="subject_title" type="text" required list="subject_title" placeholder="Masukkan Tajuk Subjek" autocomplete="off" value="<?php echo (isset($dataset->tajuk) ? $dataset->tajuk : ''); ?>"/>
                                     <datalist id="subject_title"></datalist>
                                 </td>
                             </tr>
                             <tr>
                                 <th>STANDARD KANDUNGAN</th>
                                 <td colspan="10">
-                                    <input class="form-control" name="content_standard" type="text" required placeholder="Masukkan Standard Kandungan" autocomplete="off"/>
+                                    <input class="form-control" name="content_standard" type="text" required placeholder="Masukkan Standard Kandungan" autocomplete="off" value="<?php echo (isset($dataset->standard_kandungan) ? $dataset->standard_kandungan : ''); ?>"/>
                                 </td>
                             </tr> 
                             <tr>
                                 <th>STANDARD PEMBELAJARAN</th>
                                 <td colspan="10">
-                                <input class="form-control" name="subject_standard" type="text" required placeholder="Masukkan Standard Pembelajaran" autocomplete="off"/>
+                                <input class="form-control" name="subject_standard" type="text" required placeholder="Masukkan Standard Pembelajaran" autocomplete="off" value="<?php echo (isset($dataset->standard_pembelajaran) ? $dataset->standard_pembelajaran : ''); ?>"/>
                                 </td>
                             </tr>
                             <tr>
@@ -240,13 +320,33 @@
                             <tr>
                                 <th>REFLEKSI</th>
                                 <td colspan="10">
-                                    <input name="subject_outcomes" class="form-control" id="tema" type="text" required placeholder="Masukkan Refleksi" autocomplete="off" />
+                                    <input name="subject_outcomes" class="form-control" id="tema" type="text" required placeholder="Masukkan Refleksi" autocomplete="off" value="<?php echo (isset($dataset->refleksi) ? $dataset->refleksi : ''); ?>"/>
                                 </td>
                             </tr>
                             <tr>
                                 <th>GURU PENILAI</th>
                                 <td colspan="10">
-                                    <select name="ref_reviewer" class="form-control" required></select>
+                                    <select name="ref_reviewer" class="form-control" required>
+                                    <?php
+                                        if($mode == 'update'){
+                                            $options = $API->usersByRole((object)['role' => 2]);
+
+                                            if(!empty($options)){
+                                                array_unshift($options , (object)['id' => null]);
+
+                                                foreach($options as $value){
+                                                    $selected = (isset($dataset->penilai) && ($dataset->penilai == $value->id) ? 'selected' : '');
+
+                                                    if($value->id == null){
+                                                        echo "<option ".$selected." value=''>Pilih Penilai</option>";
+                                                    }else{
+                                                        echo "<option ".$selected." value='".$value->id."'>".$value->fullname ?? ''."</option>";
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ?>
+                                    </select>
                                 </td>
                             </tr>
                         </table>
@@ -276,8 +376,8 @@
     <script src="../../assets/js/custom.js"></script>
 
     <script type = "text/javascript">
-        var updateDataset  = JSON.parse(`<?php echo json_encode($dataset); ?>`);
         var $mode = `<?php echo $mode; ?>`;
+        var updateDataset  = JSON.parse(`<?php echo json_encode($dataset); ?>`);
 
         let datalistTheme  = $('datalist[id="subject_theme"]');
         let datalistTitle  = $('datalist[id="subject_title"]');
@@ -331,10 +431,12 @@
             });
         };
 
-        let setupLevelDropdown = function(){
-            dropdownEduLevel.append(`<option selected value=''>Pilih Tingkatan</option>`);
-            dropdownClassroom.append(`<option selected value=''>Pilih Kelas</option>`);
-            dropdownSubject.append(`<option selected value=''>Pilih Subjek</option>`);
+        let setupLevelDropdown = function(package = true){
+            if(package){
+                dropdownEduLevel.append(`<option selected value=''>Pilih Tingkatan</option>`);
+                dropdownClassroom.append(`<option selected value=''>Pilih Kelas</option>`);
+                dropdownSubject.append(`<option selected value=''>Pilih Subjek</option>`);
+            }
 
             dropdownEduLevel.on('change', async function(e){
                 let value = e.target.value;
@@ -352,11 +454,13 @@
                 dropdownClassroom.trigger('change');
             });
 
-            doRequest({ function: 'collectLevel' }).then(collect => {
-                collect.forEach(c => {
-                    dropdownEduLevel.append(`<option value="${ c.id }">${ c.id } - ${ c.nama_tingkatan }</option>`);
-                })
-            });
+            if(package){
+                doRequest({ function: 'collectLevel' }).then(collect => {
+                    collect.forEach(c => {
+                        dropdownEduLevel.append(`<option value="${ c.id }">${ c.id } - ${ c.nama_tingkatan }</option>`);
+                    })
+                });
+            }
         };
 
         let setupClassroomDropdown = function(){
@@ -444,6 +548,34 @@
                 
                 //# Dropdown Init (Reviewer)
                 setupReviewerDropdown();
+
+                //# Datepicker Init (Effective Date)
+                setupDatePicker();
+
+                //# Selectpicker Init (BBM)
+                setupBBM();
+            }
+
+            //# Update Mode
+            if($mode == 'update'){
+                let { instances: ckEditorInstance } = CKEDITOR;
+
+                if(ckEditorInstance['editor-objektif']){
+                    ckEditorInstance['editor-objektif'].setData(updateDataset.objektif);
+                }
+
+                if(ckEditorInstance['editor-aktiviti']){
+                    ckEditorInstance['editor-aktiviti'].setData(updateDataset.aktiviti);
+                }
+
+                //# Dropdown Init (Tingkatan)
+                setupLevelDropdown(false);
+
+                //# Dropdown Init (Classroom)
+                setupClassroomDropdown();
+
+                //# Dropdown Init (Subject)
+                setupSubjectDropdown();
 
                 //# Datepicker Init (Effective Date)
                 setupDatePicker();
