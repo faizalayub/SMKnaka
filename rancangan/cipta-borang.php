@@ -43,7 +43,6 @@
 			padding: 1em;
 			position: sticky;
 			bottom: 0;
-			z-index: 99;
 			gap: 1rem;
 		}
 

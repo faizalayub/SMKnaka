@@ -5,19 +5,20 @@
 
     if($currentrole == 2){
         $sidebarMenu[] = (object) ['label' => 'Cipta RPH', 'icon' => 'file-text', 'path' => 'cipta-borang.php'];
-        $sidebarMenu[] = (object) ['label' => 'Lihat RPH', 'icon' => 'eye', 'path' => 'lihat-borang.php'];
+        $sidebarMenu[] = (object) ['label' => 'Paparan Borang Harian', 'icon' => 'eye', 'path' => 'lihat-borang.php'];
+        $sidebarMenu[] = (object) ['label' => 'Semak & Nilai', 'icon' => 'edit-3', 'path' => 'semak-borang.php'];
     }
 
     if($currentrole == 5){
         $sidebarMenu[] = (object) ['label' => 'Cipta RPH', 'icon' => 'file-text', 'path' => 'cipta-borang.php'];
-        $sidebarMenu[] = (object) ['label' => 'Lihat RPH', 'icon' => 'eye', 'path' => 'lihat-borang.php'];
-        $sidebarMenu[] = (object) ['label' => 'Nilai RPH', 'icon' => 'file-text', 'path' => 'semak-borang.php'];
+        $sidebarMenu[] = (object) ['label' => 'Paparan Borang Harian', 'icon' => 'eye', 'path' => 'lihat-borang.php'];
+        $sidebarMenu[] = (object) ['label' => 'Semak & Nilai', 'icon' => 'edit-3', 'path' => 'semak-borang.php'];
     }
 
     if($currentrole == 6){
         $sidebarMenu[] = (object) ['label' => 'Cipta RPH', 'icon' => 'file-text', 'path' => 'cipta-borang.php'];
-        $sidebarMenu[] = (object) ['label' => 'Lihat RPH', 'icon' => 'eye', 'path' => 'lihat-borang.php'];
-        $sidebarMenu[] = (object) ['label' => 'Nilai RPH', 'icon' => 'file-text', 'path' => 'semak-borang.php'];
+        $sidebarMenu[] = (object) ['label' => 'Paparan Borang Harian', 'icon' => 'eye', 'path' => 'lihat-borang.php'];
+        $sidebarMenu[] = (object) ['label' => 'Semak & Nilai', 'icon' => 'edit-3', 'path' => 'semak-borang.php'];
     }
 ?>
 
