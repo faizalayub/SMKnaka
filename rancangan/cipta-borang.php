@@ -15,9 +15,16 @@
 		$id            = (isset($_GET['id']) ? $_GET['id'] : null);
 		$mode          = (isset($_GET['id']) ? 'update' : 'create');
 		$userSessionID = $_SESSION['id'];
+		$userRoleID    = $_SESSION['role'];
+		$reviewerRole  = 5;
 
 		if($mode == 'update'){
 			$dataset = $API->fetchRow("SELECT * FROM `rph_rancangan` WHERE id = ".$id);
+		}
+
+		switch($userRoleID){
+			case 2: $reviewerRole = 5; break;
+			case 5: $reviewerRole = 6; break;
 		}
     ?>
 
@@ -37,6 +44,26 @@
 			position: sticky;
 			bottom: 0;
 			z-index: 99;
+			gap: 1rem;
+		}
+
+		.content-loader{
+			position: relative;
+		}
+
+		.content-loader:after{
+			content: 'Sila Tunggu';
+			display: flex;
+			align-items: start;
+			padding: 1rem;
+			justify-content: center;
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			background: var(--bs-white);
+			z-index: 999;
+			top: 0;
+			left: 0;
 		}
 	</style>
 
@@ -62,7 +89,7 @@
 							<div class="card">
 								<div class="card-body">
 									<!-- #START form -->
-									<form method="POST">
+									<form method="POST" class="content-loader">
 
 										<!-- Level 1 -->
 										<div class="mb-3 row">
@@ -273,7 +300,7 @@
 												<select name="ref_reviewer" class="form-control" required>
 													<?php
 														if($mode == 'update'){
-															$options = $API->usersByRole((object)['role' => 2]);
+															$options = $API->usersByRole((object)['role' => $reviewerRole]);
 
 															if(!empty($options)){
 																array_unshift($options , (object)['id' => null]);
@@ -297,7 +324,10 @@
 										<!-- Submit -->
 										<div class="mb-3 row">
 											<div class="col-sm-12 button-footer-container">
-												<button class="btn btn-success" type="submit" name="btnSimpan"> Simpan RPH </button>
+												<a href="lihat-borang.php">
+													<button type="button" class="btn btn-outline-secondary">Kembali</button>
+												</a>
+												<button class="btn btn-success" type="submit" name="btnSimpan">Simpan RPH</button>
 											</div>
 										</div>
 									</form>
@@ -320,6 +350,7 @@
     <script src="../ckeditor/ckeditor.js"></script>
 
 	<script type = "text/javascript">
+		var formEl = $('form');
         var $mode = `<?php echo $mode; ?>`;
         var updateDataset  = JSON.parse(`<?php echo json_encode($dataset); ?>`);
 
@@ -356,7 +387,7 @@
 
             dropdownReviewer.append(`<option selected value=''>Pilih Guru Penilai</option>`);
 
-            doRequest({ function: 'usersByRole', role: 2 }).then(collect => {
+            doRequest({ function: 'usersByRole', role: <?php echo $reviewerRole; ?> }).then(collect => {
                 collect.forEach(c => {
                     dropdownReviewer.append(`<option value="${ c.id }">${ c.fullname }</option>`);
                 })
@@ -457,7 +488,7 @@
             effectiveDate.trigger('change');
         };
 
-        let setupBBM = async function(){
+        let setupBBM = async function(value = ''){
             //# https://picker.uhlir.dev/
             let getBBM = await doRequest({ function: 'collectBBM' });
 
@@ -470,6 +501,10 @@
             instance.on('sp-change', function(){
                 $('[name="teaching_bbm"]').val(instance.val().join(','));
             });
+
+			value.split(',').forEach(op => {
+				$('[name="bbm_picker"]').picker('set', +op);
+			});
         };
 
         $(document).ready(function(){
@@ -521,12 +556,19 @@
                 //# Dropdown Init (Subject)
                 setupSubjectDropdown();
 
+				//# Dropdown Init (Reviewer)
+                setupReviewerDropdown();
+
                 //# Datepicker Init (Effective Date)
                 setupDatePicker();
 
                 //# Selectpicker Init (BBM)
-                setupBBM();
+                setupBBM((updateDataset.bbm ?? ''));
             }
+
+			setTimeout(function(){
+				formEl.removeClass('content-loader');
+			},300);
         });
     </script>
 
