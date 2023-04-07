@@ -71,6 +71,7 @@ https://templatemo.com/tm-573-eduwell
                       <!-- ***** Menu Start ***** -->
                       <ul class="nav">
                           <li class="scroll-to-section"><a href="#top" class="active">Utama</a></li>
+                          <li class="scroll-to-section"><a href="#">RPH</a></li>
                           <li class="scroll-to-section"><a href="#services">Pentadbiran</a></li>
                           <li class="scroll-to-section"><a href="#courses">Bidang</a></li>
                           <li><a href="kehadiranKo/kehadiran-ko.php">Kehadiran Ko</a></li>

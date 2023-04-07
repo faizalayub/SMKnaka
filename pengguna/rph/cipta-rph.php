@@ -3,6 +3,10 @@
     include '../../_API.php';
     require_once('../../panggil-database.php');
 
+    if(!isset($_SESSION['role']) || $_SESSION['role'] != '2'){
+        header("Refresh: 1; url=../../index.php");
+    }
+
     $dataset = (object)[];
     $API           = new Controller('RETURN');
     $id            = (isset($_GET['id']) ? $_GET['id'] : null);
