@@ -43,6 +43,15 @@ class Controller {
         return $response;
     }
 
+    function runQuery($query){
+        $connect = $this->connect();
+        $prepareQuery = mysqli_query($connect, $query);
+
+        $connect->close();
+
+        return $prepareQuery;
+    }
+
     function collectSubject(){
         $response = (object) ['status' => 200, 'data' => [], 'message' => ''];
         $response->data = $this->fetchRows("SELECT * FROM rph_subjek");

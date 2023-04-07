@@ -532,6 +532,7 @@
 
     <?php
         if(isset($_POST['btnSimpan'])){
+			$response;
             $ref_school_level  = (isset($_POST['ref_school_level']) ? $_POST['ref_school_level'] : '');
             $ref_classroom     = (isset($_POST['ref_classroom']) ? $_POST['ref_classroom'] : '');
             $ref_subject       = (isset($_POST['ref_subject']) ? $_POST['ref_subject'] : '');
@@ -548,57 +549,65 @@
             $subject_objective = (isset($_POST['subject_objective']) ? $_POST['subject_objective'] : '');
             $subject_activity  = (isset($_POST['subject_activity']) ? $_POST['subject_activity'] : '');
             $subject_outcomes  = (isset($_POST['subject_outcomes']) ? $_POST['subject_outcomes'] : '');
-    
-            $tableColumns = "`id`, `id_pengguna`, `id_kelasLengkap`, `id_subjek`, `tarikh`, `masa_mula`, `masa_tamat`, `tema`, `tajuk`, `standard_kandungan`, `standard_pembelajaran`, `objektif`, `aktiviti`, `refleksi`, `bahan_bantuan`, `created_date`, `changes_date`, `bbm`, `penilai`, `minggu_sekolah`, `id_tingkatan`";
-            
-            $tableValues = "NULL, '$userSessionID', '$ref_classroom', '$ref_subject', '$effective_date', '$start_time', '$end_time', '$subject_theme', '$subject_title', '$content_standard', '$subject_standard', '$subject_objective', '$subject_activity', '$subject_outcomes', '', current_timestamp(), current_timestamp(), '$teaching_bbm', '$ref_reviewer', '$ref_educationweek', '$ref_school_level'";
-    
-            if(mysqli_query($sambung, "INSERT INTO `rph_rancangan` ($tableColumns) VALUES ($tableValues)")){
+
+			if($mode == 'create'){
+				$tableColumns = "`id`, `id_pengguna`, `id_kelasLengkap`, `id_subjek`, `tarikh`, `masa_mula`, `masa_tamat`, `tema`, `tajuk`, `standard_kandungan`, `standard_pembelajaran`, `objektif`, `aktiviti`, `refleksi`, `bahan_bantuan`, `created_date`, `changes_date`, `bbm`, `penilai`, `minggu_sekolah`, `id_tingkatan`";
+				
+				$tableValues = "NULL, '$userSessionID', '$ref_classroom', '$ref_subject', '$effective_date', '$start_time', '$end_time', '$subject_theme', '$subject_title', '$content_standard', '$subject_standard', '$subject_objective', '$subject_activity', '$subject_outcomes', '', current_timestamp(), current_timestamp(), '$teaching_bbm', '$ref_reviewer', '$ref_educationweek', '$ref_school_level'";
+
+				$response = $API->runQuery("INSERT INTO `rph_rancangan` ($tableColumns) VALUES ($tableValues)");
+			}
+
+			if($mode == 'update'){
+				$response = $API->runQuery("UPDATE `rph_rancangan` SET `id_kelasLengkap` = '$ref_classroom', `id_subjek` = '$ref_subject', `tarikh` = '$effective_date', `masa_mula` = '$start_time', `masa_tamat` = '$end_time', `tema` = '$subject_theme', `tajuk` = '$subject_title', `standard_kandungan` = '$content_standard', `standard_pembelajaran` = '$subject_standard', `objektif` = '$subject_objective', `aktiviti` = '$subject_activity', `refleksi` = '$subject_outcomes', `changes_date` = current_timestamp(), `BBM` = '$teaching_bbm', `penilai` = '$ref_reviewer', `minggu_sekolah` = '$ref_educationweek', `id_tingkatan` = '$ref_school_level'WHERE `rph_rancangan`.`id` = ".$id);
+			}
+
+            if($response){
                 echo '<script>
-                    swal({
-                        title: "Perancangan disimpan",
-                        text: "Semua data berjaya disimpan",
-                        type: "success",
-                        showCancelButton: false,
-                        confirmButtonClass: "btn-success",
-                        confirmButtonText: "OK",
-                        closeOnConfirm: false
-                    },
-                    function(e){
-                        swal({
-                            title: "Bina RPH lagi?",
-                            text: "Anda akan kekal di lama web yang sama",
-                            type: "info",
-                            showCancelButton: true,
-                            confirmButtonClass: "btn-info",
-                            confirmButtonText: "Bina Lagi",
-                            cancelButtonText: "Tidak",
-                            closeOnConfirm: true,
-                            closeOnCancel: true
-                        },
-                        function(e){
-                            if(e == true){
-                                swal.close();
-                            }else{
-                                window.location.href="../index.php";
-                            }
-                        });
-                    });
+						swal({
+							title: "Perancangan disimpan",
+							text: "Semua data berjaya disimpan",
+							type: "success",
+							showCancelButton: false,
+							confirmButtonClass: "btn-success",
+							confirmButtonText: "OK",
+							closeOnConfirm: false
+						},
+						function(e){
+							swal({
+								title: "Bina RPH lagi?",
+								text: "Anda akan kekal di lama web yang sama",
+								type: "info",
+								showCancelButton: true,
+								confirmButtonClass: "btn-info",
+								confirmButtonText: "Bina Lagi",
+								cancelButtonText: "Tidak",
+								closeOnConfirm: true,
+								closeOnCancel: true
+							},
+							function(e){
+								if(e == true){
+									window.location.reload();
+								}else{
+									window.location.href="./lihat-borang.php";
+								}
+							});
+						});
                 </script>';
             }else{
                 echo '<script>
-                    swal({
-                        title: "Bina RPH lagi?",
-                        text: "Anda akan kekal di lama web yang sama",
-                        type: "danger",
-                        showCancelButton: false,
-                        confirmButtonClass: "btn-danger",
-                        confirmButtonText: "Cuba Lagi",
-                        closeOnConfirm: false
-                    },
-                    function(e){
-                        window.location.reload();
-                    });
+						swal({
+							title: "Bina RPH lagi?",
+							text: "Anda akan kekal di lama web yang sama",
+							type: "danger",
+							showCancelButton: false,
+							confirmButtonClass: "btn-danger",
+							confirmButtonText: "Cuba Lagi",
+							closeOnConfirm: false
+						},
+						function(e){
+							window.location.reload();
+						});
                 </script>';
             }  
         }
