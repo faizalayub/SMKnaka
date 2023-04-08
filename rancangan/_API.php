@@ -199,4 +199,51 @@ class Controller {
             return $response->data;
         }
     }
+
+    function reviewStatus($id = null){
+        $status = [
+            (object)[
+                'id' => null,
+                'color' => '',
+                'text' => '-- Pilih Status Penilaian --'
+            ],
+            (object)[
+                'id' => 0,
+                'color' => 'bg-secondary',
+                'text' => 'Belum Dinilai'
+            ],
+            (object)[
+                'id' => 1,
+                'color' => 'bg-success',
+                'text' => 'Diterima'
+            ],
+            (object)[
+                'id' => 2,
+                'color' => 'bg-danger',
+                'text' => 'Perlu Dibaiki'
+            ]
+        ];
+        
+        if(isset($id)){
+            return $status[$id];
+        }else{
+            return $status;
+        }
+    }
+
+    function saveReview(){
+        $id        = (isset($_POST['id']) ? $_POST['id'] : null);
+        $status    = (isset($_POST['status']) ? $_POST['status'] : null);
+        $summary   = (isset($_POST['summary']) ? $_POST['summary'] : null);
+        $signature = (isset($_POST['signature']) ? $_POST['signature'] : '');
+
+        $response = $this->runQuery("UPDATE `rph_rancangan` SET `komen_penilai` = '$summary', `status_penilai` = '$status', `signature` = '$signature', `tarikh_penilai` = current_timestamp() WHERE `rph_rancangan`.`id` = ".$id);
+
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response;
+        }
+    }
 }

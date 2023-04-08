@@ -14,12 +14,17 @@
 		$API           = new Controller('RETURN');
 		$id            = (isset($_GET['id']) ? $_GET['id'] : null);
 		$mode          = (isset($_GET['id']) ? 'update' : 'create');
+		$isReviewing   = (isset($_GET['review']));
 		$userSessionID = $_SESSION['id'];
 		$userRoleID    = $_SESSION['role'];
 		$reviewerRole  = 5;
 
 		if($mode == 'update'){
 			$dataset = $API->fetchRow("SELECT * FROM `rph_rancangan` WHERE id = ".$id);
+
+			if(!empty($dataset->signature)){
+				$dataset->signature = json_decode($dataset->signature);
+			}
 		}
 
 		switch($userRoleID){
@@ -64,7 +69,26 @@
 			top: 0;
 			left: 0;
 		}
+
+		.summary-border{
+			border: solid 1px var(--bs-white) !important;
+    		border-radius: 1rem;
+		}
 	</style>
+
+	<?php
+		if($isReviewing){
+			echo '<style>
+				.header-page-title, .main .navbar, nav.sidebar, footer.footer, .button-footer-container, .pc-trigger {
+					display: none !important;
+				}
+				.main-field-wrapper{
+					padding: 0;
+					pointer-events: none;
+				}
+			</style>';
+		}
+	?>
 
 	<link href="../vendor/chipspicker/picker.css" rel="stylesheet">
 </head>
@@ -79,19 +103,19 @@
 			<main class="content">
 				<div class="container-fluid p-0">
 
-					<h1 class="h3 mb-3">
+					<h1 class="h3 mb-3 header-page-title">
 						<strong>Cipta</strong> Perancangan Harian
 					</h1>
 
 					<div class="row">
 						<div class="col-12 col-xl-12">
-							<div class="card">
+							<div class="card m-0">
 								<div class="card-body">
 									<!-- #START form -->
 									<form method="POST" class="content-loader">
 
 										<!-- Level 1 -->
-										<div class="mb-3 row">
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TINGKATAN</label>
 											<div class="col-sm-10">
 												<select name="ref_school_level" id="tingkatan_id" class="form-control">
@@ -119,7 +143,7 @@
 										</div>
 										
 										<!-- Level 2 -->
-										<div class="mb-3 row">
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">KELAS</label>
 											<div class="col-sm-2">
 												<select name="ref_classroom" id="kelasId" class="form-control" required>
@@ -172,7 +196,7 @@
 										</div>
 
 										<!-- Level 3 -->
-										<div class="mb-3 row">
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TARIKH</label>
 											<div class="col-sm-2">
 												<input type="date" name="effective_date" class="form-control" required value="<?php echo (isset($dataset->tarikh) ? $dataset->tarikh : ''); ?>"/>
@@ -190,7 +214,7 @@
 										</div>
 
 										<!-- Level 4 -->
-										<div class="mb-3 row">
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">HARI</label>
 											<div class="col-sm-2">
 												<input id="date-selected-info" type="text" readonly value="-" class="form-control"/>
@@ -223,7 +247,7 @@
 										</div>
 
 										<!-- Level 5 -->
-										<div class="mb-3 row">
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TEMA</label>
 											<div class="col-sm-10">
 												<input class="form-control" name="subject_theme" type="text" required list="subject_theme" placeholder="Masukkan Tema Subjek" autocomplete="off" value="<?php echo (isset($dataset->tema) ? $dataset->tema : ''); ?>"/>
@@ -232,7 +256,7 @@
 										</div>
 
 										<!-- Level 6 -->
-										<div class="mb-3 row">
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TAJUK</label>
 											<div class="col-sm-10">
 												<input class="form-control" name="subject_title" type="text" required list="subject_title" placeholder="Masukkan Tajuk Subjek" autocomplete="off" value="<?php echo (isset($dataset->tajuk) ? $dataset->tajuk : ''); ?>"/>
@@ -241,7 +265,7 @@
 										</div>
 
 										<!-- Level 7 -->
-										<div class="mb-3 row">
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">STANDARD KANDUNGAN</label>
 											<div class="col-sm-10">
 												<input class="form-control" name="content_standard" type="text" required placeholder="Masukkan Standard Kandungan" autocomplete="off" value="<?php echo (isset($dataset->standard_kandungan) ? $dataset->standard_kandungan : ''); ?>"/>
@@ -249,7 +273,7 @@
 										</div>
 
 										<!-- Level 8 -->
-										<div class="mb-3 row">
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">STANDARD PEMBELAJARAN</label>
 											<div class="col-sm-10">
 												<input class="form-control" name="subject_standard" type="text" required placeholder="Masukkan Standard Pembelajaran" autocomplete="off" value="<?php echo (isset($dataset->standard_pembelajaran) ? $dataset->standard_pembelajaran : ''); ?>"/>
@@ -257,7 +281,7 @@
 										</div>
 
 										<!-- Level 9 -->
-										<div class="mb-3 row">
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">OBJEKTIF PEMBELAJARAN</label>
 											<div class="col-sm-10">
 												<span class="form-text text-muted">Di akhir pengajaran dan pembelajaran, murid dapat</span>
@@ -266,7 +290,7 @@
 										</div>
 
 										<!-- Level 10 -->
-										<div class="mb-3 row">
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">AKTIVITI PEMBELAJARAN</label>
 											<div class="col-sm-10">
 												<textarea name="subject_activity" id="editor-aktiviti" required></textarea>
@@ -274,7 +298,7 @@
 										</div>
 
 										<!-- Level 11 -->
-										<div class="mb-3 row">
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">BBM</label>
 											<div class="col-sm-10">
 												<select name="bbm_picker" multiple>
@@ -285,7 +309,7 @@
 										</div>
 
 										<!-- Level 12 -->
-										<div class="mb-3 row">
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">REFLEKSI</label>
 											<div class="col-sm-10">
 												<input name="subject_outcomes" class="form-control" id="tema" type="text" required placeholder="Masukkan Refleksi" autocomplete="off" value="<?php echo (isset($dataset->refleksi) ? $dataset->refleksi : ''); ?>"/>
@@ -293,35 +317,37 @@
 										</div>
 
 										<!-- Level 13 -->
-										<div class="mb-3 row">
-											<label class="col-form-label col-sm-2 text-sm-end fw-bold">GURU PENILAI</label>
-											<div class="col-sm-10">
-												<select name="ref_reviewer" class="form-control" required>
-													<?php
-														if($mode == 'update'){
-															$options = $API->usersByRole((object)['role' => $reviewerRole]);
+										<?php if(!$isReviewing){ ?>
+											<div class="mb-3 row main-field-wrapper">
+												<label class="col-form-label col-sm-2 text-sm-end fw-bold">GURU PENILAI</label>
+												<div class="col-sm-10">
+													<select name="ref_reviewer" class="form-control" required>
+														<?php
+															if($mode == 'update'){
+																$options = $API->usersByRole((object)['role' => $reviewerRole]);
 
-															if(!empty($options)){
-																array_unshift($options , (object)['id' => null]);
+																if(!empty($options)){
+																	array_unshift($options , (object)['id' => null]);
 
-																foreach($options as $value){
-																	$selected = (isset($dataset->penilai) && ($dataset->penilai == $value->id) ? 'selected' : '');
+																	foreach($options as $value){
+																		$selected = (isset($dataset->penilai) && ($dataset->penilai == $value->id) ? 'selected' : '');
 
-																	if($value->id == null){
-																		echo "<option ".$selected." value=''>Pilih Penilai</option>";
-																	}else{
-																		echo "<option ".$selected." value='".$value->id."'>".$value->fullname ?? ''."</option>";
+																		if($value->id == null){
+																			echo "<option ".$selected." value=''>Pilih Penilai</option>";
+																		}else{
+																			echo "<option ".$selected." value='".$value->id."'>".$value->fullname ?? ''."</option>";
+																		}
 																	}
 																}
 															}
-														}
-													?>
-												</select>
+														?>
+													</select>
+												</div>
 											</div>
-										</div>
+										<?php } ?>
 
 										<!-- Submit -->
-										<div class="mb-3 row">
+										<div class="mb-3 row main-field-wrapper">
 											<div class="col-sm-12 button-footer-container">
 												<a href="lihat-borang.php">
 													<button type="button" class="btn btn-outline-secondary">Kembali</button>
@@ -329,6 +355,56 @@
 												<button class="btn btn-success" type="submit" name="btnSimpan">Simpan RPH</button>
 											</div>
 										</div>
+
+										<!-- Review Section -->
+										<?php if($isReviewing){ ?>
+											<div class="border py-3 bg-secondary summary-border">
+
+												<div class="mb-3 row">
+													<span class="form-text text-center text-lg text-white fw-bold">Jawapan Penilaian</span>
+													<span class="form-text text-center text-lg text-white">Sila baca dahulu sebelum beri penilaian</span>
+												</div>
+												
+												<div class="mb-3 row">
+													<label class="col-form-label col-sm-2 text-sm-end fw-bold text-white">Tukar Status</label>
+													<div class="col-sm-8">
+														<select class="form-control" id="signature-status">
+															<?php
+																$statusCollection = $API->reviewStatus();
+
+																foreach($statusCollection as $key => $value){
+																	$selected = (isset($dataset->status_penilai) && ($dataset->status_penilai == $value->id) ? 'selected' : '');
+
+																	echo "<option ".$selected." value='".$value->id."'>".$value->text."</option>";
+																}
+															?>
+														</select>
+													</div>
+												</div>
+
+												<div class="mb-3 row">
+													<label class="col-form-label col-sm-2 text-sm-end fw-bold text-white">Bagi Cadangan</label>
+													<div class="col-sm-8">
+														<textarea class="form-control" rows="2" placeholder="Tulis cadangan disini" id="signature-summary"><?php echo (isset($dataset->komen_penilai) ? $dataset->komen_penilai : ''); ?></textarea>
+													</div>
+												</div>
+
+												<div class="mb-3 row">
+													<label class="col-form-label col-sm-2 text-sm-end fw-bold text-white">Tanda Tangan</label>
+													<div class="col-sm-8">
+														<canvas id="signature-wrapper" class="p-1 border-1 bg-white" style="border-radius: 3px;"></canvas><br>
+														<button class="btn btn-secondary signature-clear" type="button">Padam Tanda Tangan</button>
+													</div>
+												</div>
+
+												<div class="mb-3 row">
+													<label class="col-form-label col-sm-2 text-sm-end fw-bold text-white"></label>
+													<div class="col-sm-8">
+														<button class="btn btn-success signature-submit w-100" type="button">Hantar Penilaian</button>
+													</div>
+												</div>
+											</div>
+										<?php } ?>
 									</form>
 									<!-- #END form -->
 								</div>
@@ -345,6 +421,7 @@
 
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 	<script src="../vendor/jquery/jquery.min.js"></script>
+	<script src="../vendor/signaturepad/signaturepad.min.js"></script>
     <script src="../vendor/chipspicker/picker.min.js" defer></script>
     <script src="../ckeditor/ckeditor.js"></script>
 
@@ -368,11 +445,11 @@
         let dateInfoAlert     = $('#date-selected-info');
         let dayStringLabel    = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
 
-        let doRequest = function(param = {}){
+        let doRequest = function(param = {}, method = 'GET'){
             return new Promise(resolve => {
                 $.ajax({
                     url: "_REQUEST.php",
-                    type: 'GET',
+                    type: method,
                     data: { ...param },
                     success: function({ data }){
                         resolve(data);
@@ -506,6 +583,60 @@
 			});
         };
 
+		let setupSignature = function(){
+			let signatureArea = $('#signature-wrapper');
+			let signatureStatus = $('#signature-status');
+			let signatureSummary = $('#signature-summary');
+			let submitButton = $('.signature-submit');
+
+			if(signatureArea.length > 0){
+				let signaturePad = new SignaturePad(signatureArea.get(0));
+
+				$('.signature-clear').on('click', function(){
+					signaturePad.clear();
+				});
+
+				submitButton.on('click', async function(){
+					if(signatureStatus.val() == ''){
+						alert('Status diperlukan'); return; 
+					}
+
+					if(signaturePad.isEmpty() == true){
+						alert('Tanda tangan diperlukan'); return;
+					}
+
+					await doRequest({
+						id: <?php echo $id; ?>,
+						status: signatureStatus.val(),
+						summary: signatureSummary.val(),
+						function: 'saveReview',
+						signature: JSON.stringify(signaturePad.toData())
+					}, 'POST');
+
+					swal({
+						title: "Berjaya Disimpan",
+						text: "Rekod penilaian berjaya disimpan",
+						type: "success",
+						showCancelButton: false,
+						confirmButtonClass: "btn-success",
+						confirmButtonText: "OK",
+						closeOnConfirm: false
+					},
+					function(e){
+						window.location.reload();
+					});
+				});
+
+				if(updateDataset.signature){
+					signaturePad.fromData(updateDataset.signature);
+					signaturePad.off();
+					signatureStatus.prop('disabled', true);
+					signatureSummary.prop('disabled', true);
+					submitButton.remove();
+				}
+			}
+		};
+
         $(document).ready(function(){
             CKEDITOR.replace('editor-objektif');
 
@@ -568,6 +699,9 @@
 			setTimeout(function(){
 				formEl.removeClass('content-loader');
 			},300);
+
+			//# Init Signature Pad
+			setupSignature()
         });
     </script>
 
@@ -600,7 +734,7 @@
 			}
 
 			if($mode == 'update'){
-				$response = $API->runQuery("UPDATE `rph_rancangan` SET `id_kelasLengkap` = '$ref_classroom', `id_subjek` = '$ref_subject', `tarikh` = '$effective_date', `masa_mula` = '$start_time', `masa_tamat` = '$end_time', `tema` = '$subject_theme', `tajuk` = '$subject_title', `standard_kandungan` = '$content_standard', `standard_pembelajaran` = '$subject_standard', `objektif` = '$subject_objective', `aktiviti` = '$subject_activity', `refleksi` = '$subject_outcomes', `changes_date` = current_timestamp(), `BBM` = '$teaching_bbm', `penilai` = '$ref_reviewer', `minggu_sekolah` = '$ref_educationweek', `id_tingkatan` = '$ref_school_level'WHERE `rph_rancangan`.`id` = ".$id);
+				$response = $API->runQuery("UPDATE `rph_rancangan` SET `id_kelasLengkap` = '$ref_classroom', `id_subjek` = '$ref_subject', `tarikh` = '$effective_date', `masa_mula` = '$start_time', `masa_tamat` = '$end_time', `tema` = '$subject_theme', `tajuk` = '$subject_title', `standard_kandungan` = '$content_standard', `standard_pembelajaran` = '$subject_standard', `objektif` = '$subject_objective', `aktiviti` = '$subject_activity', `refleksi` = '$subject_outcomes', `changes_date` = current_timestamp(), `BBM` = '$teaching_bbm', `penilai` = '$ref_reviewer', `minggu_sekolah` = '$ref_educationweek', `id_tingkatan` = '$ref_school_level' WHERE `rph_rancangan`.`id` = ".$id);
 			}
 
             if($response){
