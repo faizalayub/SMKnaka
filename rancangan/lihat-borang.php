@@ -66,6 +66,7 @@
 									<thead>
 										<tr>
 											<th scope="col" class="nowrap-space">No.</th>
+											<th scope="col" class="nowrap-space cell-md">Status</th>
 											<th scope="col" class="nowrap-space cell-md">Tema</th>
 											<th scope="col" class="nowrap-space cell-md">Tajuk</th>
 											<th scope="col" class="nowrap-space">Tingkatan</th>
@@ -90,11 +91,14 @@
 											if(!empty($dataset)){
 												foreach($dataset as $key => $value){
 													$collectBBM = [];
+													$statusPenilai = $API->reviewStatus($value->status_penilai);
 													$dataTingkatan = $API->fetchRow("SELECT * FROM tingkatan WHERE id = ".$value->id_tingkatan);
 													$dataClassroom = $API->fetchRow("SELECT * FROM `kelas_lengkap` WHERE id = ".$value->id_kelasLengkap);
 													$dataSubject   = $API->fetchRow("SELECT * FROM `tb_subjek` WHERE id = ".$value->id_subjek);
 													$dataWeekSchool= $API->fetchRow("SELECT * FROM `rph_minggu` WHERE id_minggu = ".$value->minggu_sekolah);
 													$dataReviewer  = $API->fetchRow("SELECT * FROM `pengguna` WHERE id = ".$value->penilai);
+
+													$updateButton = '<a href="./cipta-borang.php?id='.$value->id.'"><button class="btn btn-primary">Kemaskini</button></a>';
 													
 													if(!empty($value->bbm)){
 														$dataBBM = $API->fetchRows("SELECT * FROM `tb_bbm` WHERE `id` IN ($value->bbm)");
@@ -109,8 +113,15 @@
 														$collectBBM = '-';
 													}
 
+													if($value->status_penilai == 1){
+														$updateButton = '<button class="btn btn-success" disabled>Diterima</button>';
+													}
+
 													echo '<tr>
 														<td class="nowrap-space">'.($key + 1).'</td>
+														<td>
+															<a href="#" class="badge '.$statusPenilai->color.' me-1 my-1">'.$statusPenilai->text.'</a>
+														</td>
 														<td class="cell-md">'.$value->tema.'</td>
 														<td class="cell-md">'.$value->tajuk.'</td>
 														<td class="nowrap-space">'.$dataTingkatan->singkatan_tingkatan.'-'.$dataTingkatan->nama_tingkatan.'</td>
@@ -127,9 +138,7 @@
 														<td class="cell-lg">'.$collectBBM.'</td>
 														<td>'.$value->refleksi.'</td>
 														<td class="cell-md">'.$dataReviewer->fullname.'</td>
-														<td class="td-sticky">
-															<a href="./cipta-borang.php?id='.$value->id.'"><button class="btn btn-primary">Kemaskini</button></a>
-														</td>
+														<td class="td-sticky">'.$updateButton.'</td>
 													</tr>';
 												}
 											}else{

@@ -360,12 +360,12 @@
 										<?php if($isReviewing){ ?>
 											<div class="border py-3 bg-secondary summary-border">
 
-												<div class="mb-3 row">
+												<div class="mb-3 row px-3">
 													<span class="form-text text-center text-lg text-white fw-bold">Jawapan Penilaian</span>
 													<span class="form-text text-center text-lg text-white">Sila baca dahulu sebelum beri penilaian</span>
 												</div>
 												
-												<div class="mb-3 row">
+												<div class="mb-3 row px-3">
 													<label class="col-form-label col-sm-2 text-sm-end fw-bold text-white">Tukar Status</label>
 													<div class="col-sm-8">
 														<select class="form-control" id="signature-status">
@@ -382,14 +382,14 @@
 													</div>
 												</div>
 
-												<div class="mb-3 row">
+												<div class="mb-3 row px-3">
 													<label class="col-form-label col-sm-2 text-sm-end fw-bold text-white">Bagi Cadangan</label>
 													<div class="col-sm-8">
 														<textarea class="form-control" rows="2" placeholder="Tulis cadangan disini" id="signature-summary"><?php echo (isset($dataset->komen_penilai) ? $dataset->komen_penilai : ''); ?></textarea>
 													</div>
 												</div>
 
-												<div class="mb-3 row">
+												<div class="mb-3 row px-3">
 													<label class="col-form-label col-sm-2 text-sm-end fw-bold text-white">Tanda Tangan</label>
 													<div class="col-sm-8">
 														<canvas id="signature-wrapper" class="p-1 border-1 bg-white" style="border-radius: 3px;"></canvas><br>
@@ -397,7 +397,7 @@
 													</div>
 												</div>
 
-												<div class="mb-3 row">
+												<div class="mb-3 row px-3">
 													<label class="col-form-label col-sm-2 text-sm-end fw-bold text-white"></label>
 													<div class="col-sm-8">
 														<button class="btn btn-success signature-submit w-100" type="button">Hantar Penilaian</button>
@@ -588,11 +588,12 @@
 			let signatureStatus = $('#signature-status');
 			let signatureSummary = $('#signature-summary');
 			let submitButton = $('.signature-submit');
+			let clearButton = $('.signature-clear');
 
 			if(signatureArea.length > 0){
 				let signaturePad = new SignaturePad(signatureArea.get(0));
 
-				$('.signature-clear').on('click', function(){
+				clearButton.on('click', function(){
 					signaturePad.clear();
 				});
 
@@ -606,7 +607,7 @@
 					}
 
 					await doRequest({
-						id: <?php echo $id; ?>,
+						id: updateDataset.id,
 						status: signatureStatus.val(),
 						summary: signatureSummary.val(),
 						function: 'saveReview',
@@ -633,6 +634,7 @@
 					signatureStatus.prop('disabled', true);
 					signatureSummary.prop('disabled', true);
 					submitButton.remove();
+					clearButton.remove();
 				}
 			}
 		};
@@ -696,12 +698,12 @@
                 setupBBM((updateDataset.bbm ?? ''));
             }
 
+			//# Init Signature Pad
+			setupSignature();
+
 			setTimeout(function(){
 				formEl.removeClass('content-loader');
 			},300);
-
-			//# Init Signature Pad
-			setupSignature()
         });
     </script>
 
@@ -734,7 +736,7 @@
 			}
 
 			if($mode == 'update'){
-				$response = $API->runQuery("UPDATE `rph_rancangan` SET `id_kelasLengkap` = '$ref_classroom', `id_subjek` = '$ref_subject', `tarikh` = '$effective_date', `masa_mula` = '$start_time', `masa_tamat` = '$end_time', `tema` = '$subject_theme', `tajuk` = '$subject_title', `standard_kandungan` = '$content_standard', `standard_pembelajaran` = '$subject_standard', `objektif` = '$subject_objective', `aktiviti` = '$subject_activity', `refleksi` = '$subject_outcomes', `changes_date` = current_timestamp(), `BBM` = '$teaching_bbm', `penilai` = '$ref_reviewer', `minggu_sekolah` = '$ref_educationweek', `id_tingkatan` = '$ref_school_level' WHERE `rph_rancangan`.`id` = ".$id);
+				$response = $API->runQuery("UPDATE `rph_rancangan` SET `id_kelasLengkap` = '$ref_classroom', `id_subjek` = '$ref_subject', `tarikh` = '$effective_date', `masa_mula` = '$start_time', `masa_tamat` = '$end_time', `tema` = '$subject_theme', `tajuk` = '$subject_title', `standard_kandungan` = '$content_standard', `standard_pembelajaran` = '$subject_standard', `objektif` = '$subject_objective', `aktiviti` = '$subject_activity', `refleksi` = '$subject_outcomes', `changes_date` = current_timestamp(), `BBM` = '$teaching_bbm', `penilai` = '$ref_reviewer', `minggu_sekolah` = '$ref_educationweek', `id_tingkatan` = '$ref_school_level', `komen_penilai` = '', `status_penilai` = '0', `signature` = NULL, `tarikh_penilai` = NULL WHERE `rph_rancangan`.`id` = ".$id);
 			}
 
             if($response){

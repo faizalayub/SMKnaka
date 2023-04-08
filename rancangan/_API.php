@@ -225,7 +225,13 @@ class Controller {
         ];
         
         if(isset($id)){
-            return $status[$id];
+            $result = (object)[];
+            
+            foreach($status as $value){
+                if($value->id == $id) $result = $value;
+            }
+
+            return $result;
         }else{
             return $status;
         }

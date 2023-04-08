@@ -102,7 +102,7 @@
 													$reviewButton = '<button class="btn btn-info" onclick="toggleReview('.$value->id.')">Semak</button>';
 
 													if($value->status_penilai == 1){
-														$reviewButton = '<button class="btn btn-secondary" disabled>Telah Dinilai</button>';
+														$reviewButton = '<button class="btn btn-secondary" onclick="toggleReview('.$value->id.')">Telah Dinilai</button>';
 													}
 													
 													if(!empty($value->bbm)){
@@ -166,7 +166,7 @@
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
 						<div class="modal-body p-0">
-							<iframe src="./cipta-borang.php?id=8&review" class="w-100" style="height: 80svh;"></iframe>
+							<iframe id="iframe-target" src="./cipta-borang.php?id=8&review" class="w-100" style="height: 80svh;"></iframe>
 						</div>
 						<div class="modal-footer"></div>
 					</div>
@@ -183,8 +183,7 @@
 		let $modal = $('#centeredModalDanger');
 
 		function toggleReview(id){
-			console.clear();
-			console.log(id);
+			$modal.find('#iframe-target').attr('src', `./cipta-borang.php?id=${id}&review`);
 			$modal.modal('toggle');
 		}
 	</script>

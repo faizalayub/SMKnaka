@@ -6,7 +6,6 @@
     if($currentrole == 2){
         $sidebarMenu[] = (object) ['label' => 'Cipta RPH', 'icon' => 'file-text', 'path' => 'cipta-borang.php'];
         $sidebarMenu[] = (object) ['label' => 'Paparan Borang Harian', 'icon' => 'eye', 'path' => 'lihat-borang.php'];
-        $sidebarMenu[] = (object) ['label' => 'Semak & Nilai', 'icon' => 'edit-3', 'path' => 'semak-borang.php'];
     }
 
     if($currentrole == 5){
