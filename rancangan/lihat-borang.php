@@ -72,7 +72,7 @@
 							<div class="card">
 								<!-- #START table -->
 								<div class="card-body table-responsive rounded">
-									<table class="table mb-0 table-striped" id="datatables-orders">
+									<table class="table mb-0" id="datatables-orders">
 									<thead>
 										<tr>
 											<th scope="col" class="nowrap-space">No.</th>
@@ -88,7 +88,7 @@
 									</thead>
 									<tbody>
 										<?php
-											if(!empty($dataset)){
+											if((array)$dataset){
 												foreach($dataset as $key => $value){
 													$collectBBM    = [];
 													$updateButton  = '';
@@ -164,8 +164,10 @@
 		</div>
 	</div>
 
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 	<script>
 		let $modal = $('#previewFormModal');
+		let tableDataCount = "<?php echo ((array)$dataset ? 1 : 0); ?>";
 
 		function toggleReview(id){
 			$modal.find('#iframe-target').attr('src', `./cipta-borang.php?id=${id}&preview&iframe`);
@@ -173,11 +175,12 @@
 		}
 
 		document.addEventListener("DOMContentLoaded", function() {
-			// Datatables Orders
-			$("#datatables-orders").DataTable({
-				ordering: false,
-				responsive: false,
-			});
+			if(tableDataCount == 1){
+				$("#datatables-orders").DataTable({
+					ordering: false,
+					responsive: false
+				});
+			}
 		});
 	</script>
 </body>

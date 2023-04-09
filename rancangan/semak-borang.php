@@ -72,7 +72,7 @@
 							<div class="card">
 								<!-- #START table -->
 								<div class="card-body table-responsive rounded">
-									<table class="table mb-0 table-striped" id="datatables-orders">
+									<table class="table mb-0" id="datatables-orders">
 									<thead>
 										<tr>
 											<th scope="col" class="nowrap-space">No.</th>
@@ -88,7 +88,7 @@
 									</thead>
 									<tbody>
 										<?php
-											if(!empty($dataset)){
+											if((array)$dataset){
 												foreach($dataset as $key => $value){
 													$collectBBM = [];
 													$reviewButton  = '';
@@ -127,7 +127,7 @@
 														<td class="nowrap-space">'.$dataTingkatan->singkatan_tingkatan.'-'.$dataTingkatan->nama_tingkatan.'</td>
 														<td class="nowrap-space">'.$dataClassroom->keterangan.'</td>
 														<td class="nowrap-space">'.$dataSubject->subjek.'</td>
-														<td class="td-sticky">'.$reviewButton.'</td>
+														<td>'.$reviewButton.'</td>
 													</tr>';
 												}
 											}else{
@@ -164,8 +164,10 @@
 		</div>
 	</div>
 
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 	<script>
 		let $modal = $('#previewFormModal');
+		let tableDataCount = "<?php echo ((array)$dataset ? 1 : 0); ?>";
 
 		function toggleReview(id){
 			$modal.find('#iframe-target').attr('src', `./cipta-borang.php?id=${id}&review&iframe`);
@@ -173,11 +175,30 @@
 		}
 
 		document.addEventListener("DOMContentLoaded", function() {
-			// Datatables Orders
-			$("#datatables-orders").DataTable({
-				ordering: false,
-				responsive: false,
-			});
+			let groupColumn = 3;
+
+			if(tableDataCount == 1){
+				$("#datatables-orders").DataTable({
+					ordering: false,
+					responsive: false,
+					order: [[groupColumn, 'desc']],
+					columnDefs: [{ visible: false, targets: groupColumn }],
+					displayLength: 25,
+					drawCallback: function (settings) {
+						let api = this.api();
+						let rows = api.rows({ page: 'current' }).nodes();
+						let last = null;
+			
+						api.column(groupColumn, { page: 'current' }).data().each(function (group, i) {
+							if(last !== group){
+								$(rows).eq(i).before(`<tr class="group"><td colspan="9" class="bg-light py-1 px-3 text-mute text-sm">${ moment(group, 'YYYY-MM-DD').format('DD MMM, YYYY') }</td></tr>`);
+		
+								last = group;
+							}
+						});
+					}
+				});
+			}
 		});
 	</script>
 </body>
