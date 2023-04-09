@@ -13,7 +13,7 @@
 		$dataset       = (object)[];
 		$API           = new Controller('RETURN');
 		$userSessionID = $_SESSION['id'];
-		$dataset       = $API->fetchRows("SELECT * FROM `rph_rancangan` WHERE penilai = ".$userSessionID);
+		$dataset       = $API->fetchRows("SELECT * FROM `rph_rancangan` WHERE penilai = ".$userSessionID." ORDER BY `tarikh` DESC");
     ?>
 
 	<style>
@@ -67,23 +67,12 @@
 										<tr>
 											<th scope="col" class="nowrap-space">No.</th>
 											<th scope="col" class="nowrap-space">Status</th>
+											<th scope="col" class="nowrap-space">Minggu</th>
 											<th scope="col" class="nowrap-space">Tarikh</th>
-											<th scope="col" class="nowrap-space">Masa</th>
-											<th scope="col" class="nowrap-space cell-md">Nama Pemilik</th>
-											<th scope="col" class="nowrap-space cell-md">Email Pemilik</th>
-											<th scope="col" class="nowrap-space cell-md">ID Pemilik</th>
-											<th scope="col" class="nowrap-space cell-md">Tema</th>
-											<th scope="col" class="nowrap-space cell-md">Tajuk</th>
+											<th scope="col" class="nowrap-space cell-md">Nama</th>
 											<th scope="col" class="nowrap-space">Tingkatan</th>
 											<th scope="col" class="nowrap-space">Kelas</th>
 											<th scope="col" class="nowrap-space">Subjek</th>
-											<th scope="col" class="nowrap-space">Minggu</th>
-											<th scope="col" class="nowrap-space cell-lg">Standard Kandungan</th>
-											<th scope="col" class="nowrap-space cell-lg">Standard Pembelajaran</th>
-											<th scope="col" class="nowrap-space cell-lg">Objektif Pembelajaran</th>
-											<th scope="col" class="nowrap-space cell-lg">Aktiviti Pembelajaran</th>
-											<th scope="col" class="nowrap-space cell-lg">BBM</th>
-											<th scope="col" class="nowrap-space">Refleksi</th>
 											<th scope="col"></th>
 										</tr>
 									</thead>
@@ -92,6 +81,7 @@
 											if(!empty($dataset)){
 												foreach($dataset as $key => $value){
 													$collectBBM = [];
+													$reviewButton  = '';
 													$statusPenilai = $API->reviewStatus($value->status_penilai);
 													$dataTingkatan = $API->fetchRow("SELECT * FROM tingkatan WHERE id = ".$value->id_tingkatan);
 													$dataClassroom = $API->fetchRow("SELECT * FROM `kelas_lengkap` WHERE id = ".$value->id_kelasLengkap);
@@ -99,10 +89,10 @@
 													$dataWeekSchool= $API->fetchRow("SELECT * FROM `rph_minggu` WHERE id_minggu = ".$value->minggu_sekolah);
 													$dataOwner     = $API->fetchRow("SELECT * FROM `pengguna` WHERE id = ".$value->id_pengguna);
 
-													$reviewButton = '<button class="btn btn-info" onclick="toggleReview('.$value->id.')">Semak</button>';
-
-													if($value->status_penilai == 1){
-														$reviewButton = '<button class="btn btn-secondary" onclick="toggleReview('.$value->id.')">Telah Dinilai</button>';
+													if($value->status_penilai != 1){
+														$reviewButton .= '<a href="#" onclick="toggleReview('.$value->id.')" class="p-2 rounded bg-primary text-white"><i class="align-middle" data-feather="edit"></i></a> ';
+													}else{
+														$reviewButton .= '<a href="#" onclick="toggleReview('.$value->id.')" class="p-2 rounded bg-info text-white"><i class="align-middle" data-feather="eye"></i></a> ';
 													}
 													
 													if(!empty($value->bbm)){
@@ -120,26 +110,13 @@
 
 													echo '<tr>
 														<td class="nowrap-space">'.($key + 1).'</td>
-														<td>
-															<a href="#" class="badge '.$statusPenilai->color.' me-1 my-1">'.$statusPenilai->text.'</a>
-														</td>
+														<td><a href="#" class="badge '.$statusPenilai->color.' me-1 my-1">'.$statusPenilai->text.'</a></td>
+														<td class="nowrap-space">'.$dataWeekSchool->minggu.'</td>
 														<td class="nowrap-space">'.$value->tarikh.'</td>
-														<td class="nowrap-space">'.$value->masa_mula.' ~ '.$value->masa_tamat.'</td>
 														<td class="cell-md">'.$dataOwner->fullname.'</td>
-														<td class="cell-md">'.$dataOwner->email.'</td>
-														<td class="cell-md">'.$dataOwner->username.'</td>
-														<td class="cell-md">'.$value->tema.'</td>
-														<td class="cell-md">'.$value->tajuk.'</td>
 														<td class="nowrap-space">'.$dataTingkatan->singkatan_tingkatan.'-'.$dataTingkatan->nama_tingkatan.'</td>
 														<td class="nowrap-space">'.$dataClassroom->keterangan.'</td>
 														<td class="nowrap-space">'.$dataSubject->subjek.'</td>
-														<td class="nowrap-space">'.$dataWeekSchool->minggu.'</td>
-														<td class="cell-lg">'.$value->standard_kandungan.'</td>
-														<td class="cell-lg">'.$value->standard_pembelajaran.'</td>
-														<td class="cell-lg">'.$value->objektif.'</td>
-														<td class="cell-lg">'.$value->aktiviti.'</td>
-														<td class="cell-lg">'.$collectBBM.'</td>
-														<td>'.$value->refleksi.'</td>
 														<td class="td-sticky">'.$reviewButton.'</td>
 													</tr>';
 												}
@@ -158,7 +135,7 @@
 				</div>
 			</main>
 
-			<div class="modal fade" id="centeredModalDanger" tabindex="-1" aria-modal="true" role="dialog">
+			<div class="modal fade" id="previewFormModal" tabindex="-1" aria-modal="true" role="dialog">
 				<div class="modal-dialog modal-dialog-centered modal-xl" role="document">
 					<div class="modal-content">
 						<div class="modal-header">
@@ -166,7 +143,7 @@
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
 						<div class="modal-body p-0">
-							<iframe id="iframe-target" src="./cipta-borang.php?id=8&review" class="w-100" style="height: 80svh;"></iframe>
+							<iframe id="iframe-target" src="" class="w-100" style="height: 80svh;"></iframe>
 						</div>
 						<div class="modal-footer"></div>
 					</div>
@@ -180,10 +157,10 @@
 	<script src="../vendor/jquery/jquery.min.js"></script>
 
 	<script>
-		let $modal = $('#centeredModalDanger');
+		let $modal = $('#previewFormModal');
 
 		function toggleReview(id){
-			$modal.find('#iframe-target').attr('src', `./cipta-borang.php?id=${id}&review`);
+			$modal.find('#iframe-target').attr('src', `./cipta-borang.php?id=${id}&review&iframe`);
 			$modal.modal('toggle');
 		}
 	</script>

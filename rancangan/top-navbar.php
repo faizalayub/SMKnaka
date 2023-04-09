@@ -18,7 +18,7 @@
 
                 <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
                     <img style="object-fit: cover;" src="<?php echo $profilePicture; ?>" class="avatar img-fluid rounded me-1" alt="Charles Hall" />
-                    <span class="text-dark"><?php echo (!empty($accountData) ? $accountData->email : '') ?></span>
+                    <span class="text-dark"><?php echo (!empty($accountData) ? $accountData->fullname : '') ?></span>
                 </a>
 
                 <div class="dropdown-menu dropdown-menu-end">

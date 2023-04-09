@@ -10,20 +10,51 @@
 			header("Location: ./index.php"); exit;
 		}
 
-		$dataset = (object)[];
-		$API           = new Controller('RETURN');
-		$id            = (isset($_GET['id']) ? $_GET['id'] : null);
-		$mode          = (isset($_GET['id']) ? 'update' : 'create');
-		$isReviewing   = (isset($_GET['review']));
-		$userSessionID = $_SESSION['id'];
-		$userRoleID    = $_SESSION['role'];
-		$reviewerRole  = 5;
+		$API             = new Controller('RETURN');
+		$id              = (isset($_GET['id']) ? $_GET['id'] : null);
+		$mode            = (isset($_GET['id']) ? 'update' : 'create');
+		$userRoleID      = $_SESSION['role'];
+		$userSessionID   = $_SESSION['id'];
+		$reviewerRole    = 5;
+		$showReviewArea  = false;
+		$dataset         = (object)[];
+		$hiddenSection   = [];
+
+		$iframeStyling = '
+			<style>
+				.header-page-title, .main .navbar, nav.sidebar, footer.footer, .button-footer-container, .pc-trigger {display: none !important;}
+				.main-field-wrapper{padding: 0;pointer-events: none;}
+			</style>
+		';
 
 		if($mode == 'update'){
 			$dataset = $API->fetchRow("SELECT * FROM `rph_rancangan` WHERE id = ".$id);
 
+			if(isset($_GET['review'])){ $mode = 'review'; }
+
+			if(isset($_GET['preview'])){ $mode = 'preview'; }
+
 			if(!empty($dataset->signature)){
 				$dataset->signature = json_decode($dataset->signature);
+			}
+
+			//# Review mode
+			//# PATH: cipta-borang.php?id=8&review&iframe
+			if($mode == 'review'){
+				$hiddenSection[] = 'GuruPenilai';
+				$showReviewArea = true;
+
+				if(isset($_GET['iframe'])){ echo $iframeStyling; }
+			}
+
+			//# Form owner only can view completed review result
+			//# PATH: cipta-borang.php?id=8&preview&iframe
+			if($mode == 'preview'){
+				if($userSessionID == $dataset->id_pengguna && $userSessionID != $dataset->penilai && $dataset->status_penilai == 1){
+					$showReviewArea = true;
+				}
+
+				if(isset($_GET['iframe'])){ echo $iframeStyling; }
 			}
 		}
 
@@ -69,26 +100,7 @@
 			top: 0;
 			left: 0;
 		}
-
-		.summary-border{
-			border: solid 1px var(--bs-white) !important;
-    		border-radius: 1rem;
-		}
 	</style>
-
-	<?php
-		if($isReviewing){
-			echo '<style>
-				.header-page-title, .main .navbar, nav.sidebar, footer.footer, .button-footer-container, .pc-trigger {
-					display: none !important;
-				}
-				.main-field-wrapper{
-					padding: 0;
-					pointer-events: none;
-				}
-			</style>';
-		}
-	?>
 
 	<link href="../vendor/chipspicker/picker.css" rel="stylesheet">
 </head>
@@ -120,7 +132,7 @@
 											<div class="col-sm-10">
 												<select name="ref_school_level" id="tingkatan_id" class="form-control">
 													<?php
-													if($mode == 'update'){
+													if((array)$dataset){
 														$options = $API->collectLevel();
 
 														if(!empty($options)){
@@ -148,7 +160,7 @@
 											<div class="col-sm-2">
 												<select name="ref_classroom" id="kelasId" class="form-control" required>
 													<?php
-														if($mode == 'update'){
+														if((array)$dataset){
 															$options = $API->classroomByLevel((object)['id' => $dataset->id_tingkatan]);
 
 															if(!empty($options)){
@@ -173,7 +185,7 @@
 											<div class="col-sm-6">
 												<select name="ref_subject" id="subjek" class="form-control" required>
 													<?php
-														if($mode == 'update'){
+														if((array)$dataset){
 															$options = $API->subjectByLevel((object)['id' => $dataset->id_tingkatan]);
 
 															if(!empty($options)){
@@ -224,7 +236,7 @@
 											<div class="col-sm-6">
 												<select name="ref_educationweek" class="form-control" required>
 													<?php
-														if($mode == 'update'){
+														if((array)$dataset){
 															$options = $API->collectEducationWeeks();
 
 															if(!empty($options)){
@@ -317,13 +329,13 @@
 										</div>
 
 										<!-- Level 13 -->
-										<?php if(!$isReviewing){ ?>
+										<?php if(!in_array("GuruPenilai", $hiddenSection)){ ?>
 											<div class="mb-3 row main-field-wrapper">
 												<label class="col-form-label col-sm-2 text-sm-end fw-bold">GURU PENILAI</label>
 												<div class="col-sm-10">
 													<select name="ref_reviewer" class="form-control" required>
 														<?php
-															if($mode == 'update'){
+															if((array)$dataset){
 																$options = $API->usersByRole((object)['role' => $reviewerRole]);
 
 																if(!empty($options)){
@@ -357,8 +369,8 @@
 										</div>
 
 										<!-- Review Section -->
-										<?php if($isReviewing){ ?>
-											<div class="border py-3 bg-secondary summary-border">
+										<?php if($showReviewArea){ ?>
+											<div class="border py-3 bg-secondary rounded">
 
 												<div class="mb-3 row px-3">
 													<span class="form-text text-center text-lg text-white fw-bold">Jawapan Penilaian</span>
@@ -572,11 +584,11 @@
                 $('[name="bbm_picker"]').append(`<option value="${ c.id }">${ c.barang }</option>`);
             });
 
-            let instance = $('[name="bbm_picker"]').picker();
+			let instance = $('[name="bbm_picker"]').picker();
 
-            instance.on('sp-change', function(){
-                $('[name="teaching_bbm"]').val(instance.val().join(','));
-            });
+			instance.on('sp-change', function(){
+				$('[name="teaching_bbm"]').val(instance.val().join(','));
+			});
 
 			value.split(',').forEach(op => {
 				$('[name="bbm_picker"]').picker('set', +op);
@@ -644,7 +656,7 @@
 
             CKEDITOR.replace('editor-aktiviti');
 
-            if($mode == 'create'){
+            if(['create'].includes($mode)){
                 //# Dropdown Init (Tingkatan)
                 setupLevelDropdown();
 
@@ -668,7 +680,7 @@
             }
 
             //# Update Mode
-            if($mode == 'update'){
+            if(['update','preview','review'].includes($mode)){
                 let { instances: ckEditorInstance } = CKEDITOR;
 
                 if(ckEditorInstance['editor-objektif']){
@@ -727,16 +739,18 @@
             $subject_activity  = (isset($_POST['subject_activity']) ? $_POST['subject_activity'] : '');
             $subject_outcomes  = (isset($_POST['subject_outcomes']) ? $_POST['subject_outcomes'] : '');
 
-			if($mode == 'create'){
-				$tableColumns = "`id`, `id_pengguna`, `id_kelasLengkap`, `id_subjek`, `tarikh`, `masa_mula`, `masa_tamat`, `tema`, `tajuk`, `standard_kandungan`, `standard_pembelajaran`, `objektif`, `aktiviti`, `refleksi`, `bahan_bantuan`, `created_date`, `changes_date`, `bbm`, `penilai`, `minggu_sekolah`, `id_tingkatan`";
-				
-				$tableValues = "NULL, '$userSessionID', '$ref_classroom', '$ref_subject', '$effective_date', '$start_time', '$end_time', '$subject_theme', '$subject_title', '$content_standard', '$subject_standard', '$subject_objective', '$subject_activity', '$subject_outcomes', '', current_timestamp(), current_timestamp(), '$teaching_bbm', '$ref_reviewer', '$ref_educationweek', '$ref_school_level'";
-
-				$response = $API->runQuery("INSERT INTO `rph_rancangan` ($tableColumns) VALUES ($tableValues)");
-			}
-
-			if($mode == 'update'){
+			if((array)$dataset){
+				//# Update Query
 				$response = $API->runQuery("UPDATE `rph_rancangan` SET `id_kelasLengkap` = '$ref_classroom', `id_subjek` = '$ref_subject', `tarikh` = '$effective_date', `masa_mula` = '$start_time', `masa_tamat` = '$end_time', `tema` = '$subject_theme', `tajuk` = '$subject_title', `standard_kandungan` = '$content_standard', `standard_pembelajaran` = '$subject_standard', `objektif` = '$subject_objective', `aktiviti` = '$subject_activity', `refleksi` = '$subject_outcomes', `changes_date` = current_timestamp(), `BBM` = '$teaching_bbm', `penilai` = '$ref_reviewer', `minggu_sekolah` = '$ref_educationweek', `id_tingkatan` = '$ref_school_level', `komen_penilai` = '', `status_penilai` = '0', `signature` = NULL, `tarikh_penilai` = NULL WHERE `rph_rancangan`.`id` = ".$id);
+			}else{
+				//# Create Query
+				if($mode == 'create'){
+					$tableColumns = "`id`, `id_pengguna`, `id_kelasLengkap`, `id_subjek`, `tarikh`, `masa_mula`, `masa_tamat`, `tema`, `tajuk`, `standard_kandungan`, `standard_pembelajaran`, `objektif`, `aktiviti`, `refleksi`, `bahan_bantuan`, `created_date`, `changes_date`, `bbm`, `penilai`, `minggu_sekolah`, `id_tingkatan`";
+					
+					$tableValues = "NULL, '$userSessionID', '$ref_classroom', '$ref_subject', '$effective_date', '$start_time', '$end_time', '$subject_theme', '$subject_title', '$content_standard', '$subject_standard', '$subject_objective', '$subject_activity', '$subject_outcomes', '', current_timestamp(), current_timestamp(), '$teaching_bbm', '$ref_reviewer', '$ref_educationweek', '$ref_school_level'";
+	
+					$response = $API->runQuery("INSERT INTO `rph_rancangan` ($tableColumns) VALUES ($tableValues)");
+				}
 			}
 
             if($response){
@@ -764,7 +778,7 @@
 							},
 							function(e){
 								if(e == true){
-									window.location.reload();
+									window.location.href="./cipta-borang.php";
 								}else{
 									window.location.href="./lihat-borang.php";
 								}

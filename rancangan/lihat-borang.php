@@ -13,7 +13,7 @@
 		$dataset       = (object)[];
 		$API           = new Controller('RETURN');
 		$userSessionID = $_SESSION['id'];
-		$dataset       = $API->fetchRows("SELECT * FROM `rph_rancangan` WHERE id_pengguna = ".$userSessionID);
+		$dataset       = $API->fetchRows("SELECT * FROM `rph_rancangan` WHERE id_pengguna = ".$userSessionID." ORDER BY `tarikh` DESC");
     ?>
 
 	<style>
@@ -67,21 +67,11 @@
 										<tr>
 											<th scope="col" class="nowrap-space">No.</th>
 											<th scope="col" class="nowrap-space cell-md">Status</th>
-											<th scope="col" class="nowrap-space cell-md">Tema</th>
-											<th scope="col" class="nowrap-space cell-md">Tajuk</th>
+											<th scope="col" class="nowrap-space">Minggu</th>
 											<th scope="col" class="nowrap-space">Tingkatan</th>
 											<th scope="col" class="nowrap-space">Kelas</th>
 											<th scope="col" class="nowrap-space">Subjek</th>
 											<th scope="col" class="nowrap-space">Tarikh</th>
-											<th scope="col" class="nowrap-space">Masa Mula</th>
-											<th scope="col" class="nowrap-space">Masa Akhir</th>
-											<th scope="col" class="nowrap-space">Minggu</th>
-											<th scope="col" class="nowrap-space cell-lg">Standard Kandungan</th>
-											<th scope="col" class="nowrap-space cell-lg">Standard Pembelajaran</th>
-											<th scope="col" class="nowrap-space cell-lg">Objektif Pembelajaran</th>
-											<th scope="col" class="nowrap-space cell-lg">Aktiviti Pembelajaran</th>
-											<th scope="col" class="nowrap-space cell-lg">BBM</th>
-											<th scope="col" class="nowrap-space">Refleksi</th>
 											<th scope="col" class="nowrap-space cell-md">Guru Penilai</th>
 											<th scope="col"></th>
 										</tr>
@@ -90,7 +80,8 @@
 										<?php
 											if(!empty($dataset)){
 												foreach($dataset as $key => $value){
-													$collectBBM = [];
+													$collectBBM    = [];
+													$updateButton  = '';
 													$statusPenilai = $API->reviewStatus($value->status_penilai);
 													$dataTingkatan = $API->fetchRow("SELECT * FROM tingkatan WHERE id = ".$value->id_tingkatan);
 													$dataClassroom = $API->fetchRow("SELECT * FROM `kelas_lengkap` WHERE id = ".$value->id_kelasLengkap);
@@ -98,8 +89,12 @@
 													$dataWeekSchool= $API->fetchRow("SELECT * FROM `rph_minggu` WHERE id_minggu = ".$value->minggu_sekolah);
 													$dataReviewer  = $API->fetchRow("SELECT * FROM `pengguna` WHERE id = ".$value->penilai);
 
-													$updateButton = '<a href="./cipta-borang.php?id='.$value->id.'"><button class="btn btn-primary">Kemaskini</button></a>';
-													
+													$updateButton .= '<a href="#" onclick="toggleReview('.$value->id.')" class="p-2 rounded bg-info text-white"><i class="align-middle" data-feather="eye"></i></a> ';
+
+													if($value->status_penilai != 1){
+														$updateButton .= '<a href="./cipta-borang.php?id='.$value->id.'" class="p-2 rounded bg-primary text-white"><i class="align-middle" data-feather="edit-2"></i></a> ';
+													}
+
 													if(!empty($value->bbm)){
 														$dataBBM = $API->fetchRows("SELECT * FROM `tb_bbm` WHERE `id` IN ($value->bbm)");
 
@@ -113,32 +108,16 @@
 														$collectBBM = '-';
 													}
 
-													if($value->status_penilai == 1){
-														$updateButton = '<button class="btn btn-success" disabled>Diterima</button>';
-													}
-
 													echo '<tr>
 														<td class="nowrap-space">'.($key + 1).'</td>
-														<td>
-															<a href="#" class="badge '.$statusPenilai->color.' me-1 my-1">'.$statusPenilai->text.'</a>
-														</td>
-														<td class="cell-md">'.$value->tema.'</td>
-														<td class="cell-md">'.$value->tajuk.'</td>
+														<td><a href="#" class="badge '.$statusPenilai->color.' me-1 my-1">'.$statusPenilai->text.'</a></td>
+														<td class="nowrap-space">'.$dataWeekSchool->minggu.'</td>
 														<td class="nowrap-space">'.$dataTingkatan->singkatan_tingkatan.'-'.$dataTingkatan->nama_tingkatan.'</td>
 														<td class="nowrap-space">'.$dataClassroom->keterangan.'</td>
 														<td class="nowrap-space">'.$dataSubject->subjek.'</td>
 														<td class="nowrap-space">'.$value->tarikh.'</td>
-														<td class="nowrap-space">'.$value->masa_mula.'</td>
-														<td class="nowrap-space">'.$value->masa_tamat.'</td>
-														<td class="nowrap-space">'.$dataWeekSchool->minggu.'</td>
-														<td class="cell-lg">'.$value->standard_kandungan.'</td>
-														<td class="cell-lg">'.$value->standard_pembelajaran.'</td>
-														<td class="cell-lg">'.$value->objektif.'</td>
-														<td class="cell-lg">'.$value->aktiviti.'</td>
-														<td class="cell-lg">'.$collectBBM.'</td>
-														<td>'.$value->refleksi.'</td>
 														<td class="cell-md">'.$dataReviewer->fullname.'</td>
-														<td class="td-sticky">'.$updateButton.'</td>
+														<td class="table-action">'.$updateButton.'</td>
 													</tr>';
 												}
 											}else{
@@ -156,9 +135,35 @@
 				</div>
 			</main>
 
+			<div class="modal fade" id="previewFormModal" tabindex="-1" aria-modal="true" role="dialog">
+				<div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title fw-bold">Semak Dan Nilai Borang</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body p-0">
+							<iframe id="iframe-target" src="./cipta-borang.php?id=8&review" class="w-100" style="height: 80svh;"></iframe>
+						</div>
+						<div class="modal-footer"></div>
+					</div>
+				</div>
+			</div>
+
 			<?php include 'footer.php'; ?>
 		</div>
 	</div>
+
+	<script src="../vendor/jquery/jquery.min.js"></script>
+
+	<script>
+		let $modal = $('#previewFormModal');
+
+		function toggleReview(id){
+			$modal.find('#iframe-target').attr('src', `./cipta-borang.php?id=${id}&preview&iframe`);
+			$modal.modal('toggle');
+		}
+	</script>
 </body>
 
 </html>
