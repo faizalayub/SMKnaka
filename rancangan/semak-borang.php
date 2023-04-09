@@ -42,6 +42,16 @@
 			background: #fff !important;
 			border-left: solid 1px var(--bs-border-color) !important;
 		}
+
+		#datatables-orders_wrapper > .row:first-child{
+			border-bottom: solid 1px var(--bs-gray-200);
+    		padding: 0 0 1em 0;
+		}
+
+		#datatables-orders_wrapper > .row:last-child{
+			border-top: solid 1px var(--bs-gray-200);
+    		padding: 1em 0 0 0;
+		}
     </style>
 </head>
 
@@ -61,8 +71,8 @@
 						<div class="col-12 col-xl-12">
 							<div class="card">
 								<!-- #START table -->
-								<div class="table-responsive">
-									<table class="table mb-0">
+								<div class="card-body table-responsive rounded">
+									<table class="table mb-0 table-striped" id="datatables-orders">
 									<thead>
 										<tr>
 											<th scope="col" class="nowrap-space">No.</th>
@@ -154,8 +164,6 @@
 		</div>
 	</div>
 
-	<script src="../vendor/jquery/jquery.min.js"></script>
-
 	<script>
 		let $modal = $('#previewFormModal');
 
@@ -163,6 +171,14 @@
 			$modal.find('#iframe-target').attr('src', `./cipta-borang.php?id=${id}&review&iframe`);
 			$modal.modal('toggle');
 		}
+
+		document.addEventListener("DOMContentLoaded", function() {
+			// Datatables Orders
+			$("#datatables-orders").DataTable({
+				ordering: false,
+				responsive: false,
+			});
+		});
 	</script>
 </body>
 

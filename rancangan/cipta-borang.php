@@ -124,7 +124,7 @@
 							<div class="card m-0">
 								<div class="card-body">
 									<!-- #START form -->
-									<form method="POST" class="content-loader">
+									<form method="POST" class="content-loader py-4">
 
 										<!-- Level 1 -->
 										<div class="mb-3 row main-field-wrapper">
@@ -432,7 +432,6 @@
 	</div>
 
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-	<script src="../vendor/jquery/jquery.min.js"></script>
 	<script src="../vendor/signaturepad/signaturepad.min.js"></script>
     <script src="../vendor/chipspicker/picker.min.js" defer></script>
     <script src="../ckeditor/ckeditor.js"></script>
