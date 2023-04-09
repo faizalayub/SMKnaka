@@ -175,10 +175,28 @@
 		}
 
 		document.addEventListener("DOMContentLoaded", function() {
+			let groupColumn = 6;
+
 			if(tableDataCount == 1){
 				$("#datatables-orders").DataTable({
 					ordering: false,
-					responsive: false
+					responsive: false,
+					order: [[groupColumn, 'desc']],
+					columnDefs: [{ visible: false, targets: groupColumn }],
+					displayLength: 25,
+					drawCallback: function (settings) {
+						let api = this.api();
+						let rows = api.rows({ page: 'current' }).nodes();
+						let last = null;
+			
+						api.column(groupColumn, { page: 'current' }).data().each(function (group, i) {
+							if(last !== group){
+								$(rows).eq(i).before(`<tr class="group"><td colspan="9" class="bg-light py-1 px-3 text-mute text-sm">${ moment(group, 'YYYY-MM-DD').format('DD MMM, YYYY') }</td></tr>`);
+		
+								last = group;
+							}
+						});
+					}
 				});
 			}
 		});
