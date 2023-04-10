@@ -13,7 +13,13 @@
 		$dataset       = (object)[];
 		$API           = new Controller('RETURN');
 		$userSessionID = $_SESSION['id'];
-		$dataset       = $API->fetchRows("SELECT * FROM `rph_rancangan` WHERE penilai = ".$userSessionID." ORDER BY `tarikh` DESC");
+		$userRole      = $_SESSION['role'];
+
+		if($userRole == 6){
+		    $dataset = $API->fetchRows("SELECT `pengguna`.`id`, `pengguna`.`role`, `rph_rancangan`.* FROM `rph_rancangan` JOIN `pengguna` ON (`rph_rancangan`.`id_pengguna` = `pengguna`.`id`) WHERE `pengguna`.`role` = 2 OR `rph_rancangan`.`penilai` = ".$userSessionID." ORDER BY `rph_rancangan`.`tarikh` DESC");
+		}else{
+		    $dataset = $API->fetchRows("SELECT * FROM `rph_rancangan` WHERE penilai = ".$userSessionID." ORDER BY `tarikh` DESC");
+		}
     ?>
 
 	<style>
