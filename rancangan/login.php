@@ -58,7 +58,7 @@
 		$checkCredential = $utils->fetchRow("SELECT * FROM `pengguna` WHERE `username` = '".$logmasuk_id."' AND password = '".$logmasuk_pass."'");
 
 		if(!empty($checkCredential)){
-			$rolename = $utils->fetchRow("SELECT * FROM `role` WHERE id = ".$checkCredential->role);
+			$rolename    = $utils->fetchRow("SELECT * FROM `role` WHERE id = ".$checkCredential->role);
 
 			$_SESSION['id']       = $checkCredential->id;
 			$_SESSION['role']     = $checkCredential->role;

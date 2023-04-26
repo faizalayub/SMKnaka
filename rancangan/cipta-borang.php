@@ -20,6 +20,10 @@
 		$dataset         = (object)[];
 		$hiddenSection   = [];
 
+		if(isset($_GET['copy'])){
+			$mode = 'copy';
+		}
+
 		$iframeStyling = '
 			<style>
 				.header-page-title, .main .navbar, nav.sidebar, footer.footer, .button-footer-container, .pc-trigger {display: none !important;}
@@ -58,6 +62,16 @@
 			}
 		}
 
+		if($mode == 'copy'){
+			$dataset = $API->fetchRow("SELECT * FROM `rph_copyvalue` WHERE id = ".$_GET['copy']);
+
+			if(!empty($dataset)){
+				$dataset = json_decode($dataset->json);
+			}
+		}
+
+		// echo json_encode($dataset->bbm);exit;
+
 		switch($userRoleID){
 			case 2: $reviewerRole = 5; break;
 			case 5: $reviewerRole = 6; break;
@@ -70,6 +84,10 @@
 			border-radius: 3px;
 			padding: 2em;
 			border: solid 1px var(--bs-gray-200);
+		}
+
+		.cke_contents{
+			height: 80px !important;
 		}
 
 		.button-footer-container{
@@ -115,9 +133,15 @@
 			<main class="content">
 				<div class="container-fluid p-0">
 
-					<h1 class="h3 mb-3 header-page-title">
-						<strong>Cipta</strong> Perancangan Harian
-					</h1>
+					<div class="row mb-2 mb-xl-3">
+						<div class="col-auto d-none d-sm-block h3 header-page-title">
+							<strong>Cipta</strong> Perancangan Harian
+						</div>
+
+						<div class="col-auto ms-auto text-end mt-n1">
+							<button type="button" class="btn btn-primary" onclick="copyForm()">Salin Borang</button>
+						</div>
+					</div>
 
 					<div class="row">
 						<div class="col-12 col-xl-12">
@@ -126,35 +150,7 @@
 									<!-- #START form -->
 									<form method="POST" class="content-loader py-4">
 
-										<!-- Level 1 -->
-										<div class="mb-3 row main-field-wrapper">
-											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TINGKATAN</label>
-											<div class="col-sm-10">
-												<select name="ref_school_level" id="tingkatan_id" class="form-control">
-													<?php
-													if((array)$dataset){
-														$options = $API->collectLevel();
-
-														if(!empty($options)){
-															array_unshift($options , (object)['id' => null]);
-
-															foreach($options as $value){
-																$selected = (isset($dataset->id_tingkatan) && ($dataset->id_tingkatan == $value->id) ? 'selected' : '');
-
-																if($value->id == null){
-																	echo "<option ".$selected." value=''>Pilih Tingkatan</option>";
-																}else{
-																	echo "<option ".$selected." value='".$value->id."'>".$value->id."-".$value->nama_tingkatan ?? ''."</option>";
-																}
-															}
-														}
-													}
-													?>
-												</select>
-											</div>
-										</div>
-										
-										<!-- Level 2 -->
+										<!-- Layer -->
 										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">KELAS</label>
 											<div class="col-sm-2">
@@ -182,7 +178,7 @@
 											</div>
 
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">SUBJEK</label>
-											<div class="col-sm-6">
+											<div class="col-sm-2">
 												<select name="ref_subject" id="subjek" class="form-control" required>
 													<?php
 														if((array)$dataset){
@@ -205,9 +201,34 @@
 													?>
 												</select>
 											</div>
+
+											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TINGKATAN</label>
+											<div class="col-sm-2">
+												<select name="ref_school_level" id="tingkatan_id" class="form-control">
+													<?php
+													if((array)$dataset){
+														$options = $API->collectLevel();
+
+														if(!empty($options)){
+															array_unshift($options , (object)['id' => null]);
+
+															foreach($options as $value){
+																$selected = (isset($dataset->id_tingkatan) && ($dataset->id_tingkatan == $value->id) ? 'selected' : '');
+
+																if($value->id == null){
+																	echo "<option ".$selected." value=''>Pilih Tingkatan</option>";
+																}else{
+																	echo "<option ".$selected." value='".$value->id."'>".$value->id."-".$value->nama_tingkatan ?? ''."</option>";
+																}
+															}
+														}
+													}
+													?>
+												</select>
+											</div>
 										</div>
 
-										<!-- Level 3 -->
+										<!-- Layer -->
 										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TARIKH</label>
 											<div class="col-sm-2">
@@ -225,15 +246,21 @@
 											</div>
 										</div>
 
-										<!-- Level 4 -->
+										<!-- Layer -->
 										<div class="mb-3 row main-field-wrapper">
+											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TEMA</label>
+											<div class="col-sm-2">
+												<input class="form-control" name="subject_theme" type="text" required list="subject_theme" placeholder="Masukkan Tema Subjek" autocomplete="off" value="<?php echo (isset($dataset->tema) ? $dataset->tema : ''); ?>"/>
+												<datalist id="subject_theme"></datalist>
+											</div>
+
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">HARI</label>
 											<div class="col-sm-2">
 												<input id="date-selected-info" type="text" readonly value="-" class="form-control"/>
 											</div>
 
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">MINGGU</label>
-											<div class="col-sm-6">
+											<div class="col-sm-2">
 												<select name="ref_educationweek" class="form-control" required>
 													<?php
 														if((array)$dataset){
@@ -258,41 +285,26 @@
 											</div>
 										</div>
 
-										<!-- Level 5 -->
-										<div class="mb-3 row main-field-wrapper">
-											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TEMA</label>
-											<div class="col-sm-10">
-												<input class="form-control" name="subject_theme" type="text" required list="subject_theme" placeholder="Masukkan Tema Subjek" autocomplete="off" value="<?php echo (isset($dataset->tema) ? $dataset->tema : ''); ?>"/>
-												<datalist id="subject_theme"></datalist>
-											</div>
-										</div>
-
-										<!-- Level 6 -->
+										<!-- Layer -->
 										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TAJUK</label>
-											<div class="col-sm-10">
+											<div class="col-sm-2">
 												<input class="form-control" name="subject_title" type="text" required list="subject_title" placeholder="Masukkan Tajuk Subjek" autocomplete="off" value="<?php echo (isset($dataset->tajuk) ? $dataset->tajuk : ''); ?>"/>
 												<datalist id="subject_title"></datalist>
 											</div>
-										</div>
 
-										<!-- Level 7 -->
-										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">STANDARD KANDUNGAN</label>
-											<div class="col-sm-10">
+											<div class="col-sm-2">
 												<input class="form-control" name="content_standard" type="text" required placeholder="Masukkan Standard Kandungan" autocomplete="off" value="<?php echo (isset($dataset->standard_kandungan) ? $dataset->standard_kandungan : ''); ?>"/>
 											</div>
-										</div>
 
-										<!-- Level 8 -->
-										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">STANDARD PEMBELAJARAN</label>
-											<div class="col-sm-10">
+											<div class="col-sm-2">
 												<input class="form-control" name="subject_standard" type="text" required placeholder="Masukkan Standard Pembelajaran" autocomplete="off" value="<?php echo (isset($dataset->standard_pembelajaran) ? $dataset->standard_pembelajaran : ''); ?>"/>
 											</div>
 										</div>
 
-										<!-- Level 9 -->
+										<!-- Layer -->
 										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">OBJEKTIF PEMBELAJARAN</label>
 											<div class="col-sm-10">
@@ -301,7 +313,7 @@
 											</div>
 										</div>
 
-										<!-- Level 10 -->
+										<!-- Layer -->
 										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">AKTIVITI PEMBELAJARAN</label>
 											<div class="col-sm-10">
@@ -309,7 +321,7 @@
 											</div>
 										</div>
 
-										<!-- Level 11 -->
+										<!-- Layer -->
 										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">BBM</label>
 											<div class="col-sm-10">
@@ -320,7 +332,7 @@
 											</div>
 										</div>
 
-										<!-- Level 12 -->
+										<!-- Layer -->
 										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">REFLEKSI</label>
 											<div class="col-sm-10">
@@ -328,7 +340,7 @@
 											</div>
 										</div>
 
-										<!-- Level 13 -->
+										<!-- Layer -->
 										<?php if(!in_array("GuruPenilai", $hiddenSection)){ ?>
 											<div class="mb-3 row main-field-wrapper">
 												<label class="col-form-label col-sm-2 text-sm-end fw-bold">GURU PENILAI</label>
@@ -440,6 +452,24 @@
 		var formEl = $('form');
         var $mode = `<?php echo $mode; ?>`;
         var updateDataset  = JSON.parse(`<?php echo json_encode($dataset); ?>`);
+		var FormToDB = {
+			"ref_school_level" : "id_tingkatan",
+			"ref_classroom"    : "id_kelasLengkap",
+			"ref_subject"      : "id_subjek",
+			"effective_date"   : "tarikh",
+			"start_time"       : "masa_mula",
+			"end_time"         : "masa_tamat",
+			"subject_title"    : "tajuk",
+			"ref_educationweek": "minggu_sekolah",
+			"subject_theme"    : "tema",
+			"content_standard" : "standard_kandungan",
+			"subject_standard" : "standard_pembelajaran",
+			"subject_objective": "objektif",
+			"subject_activity" : "aktiviti",
+			"teaching_bbm"     : "bbm",
+			"subject_outcomes" : "refleksi",
+			"ref_reviewer"     : "penilai",
+		};
 
         let datalistTheme  = $('datalist[id="subject_theme"]');
         let datalistTitle  = $('datalist[id="subject_title"]');
@@ -650,6 +680,34 @@
 			}
 		};
 
+		async function copyForm(){
+			let { instances: ckEditorInstance } = CKEDITOR;
+			let formArray = formEl.serializeArray();
+			let formStructured = {};
+
+			$.map(formArray, function(n, i){
+				let props = FormToDB[n.name];
+				let inputvalues = n.value;
+
+				if(props == 'objektif' && ckEditorInstance['editor-objektif']){
+                    inputvalues = ckEditorInstance['editor-objektif'].getData();
+                }
+
+                if(props == 'aktiviti' && ckEditorInstance['editor-aktiviti']){
+                    inputvalues = ckEditorInstance['editor-aktiviti'].getData();
+                }
+
+				formStructured[props] = inputvalues;
+			});
+
+			let requestResult = await doRequest({
+				function: 'copyForm',
+				forminput: JSON.stringify(formStructured)
+			}, 'POST');
+
+			window.open(`${ window.location.pathname }?copy=${ requestResult }`, '_blank');
+		}
+
         $(document).ready(function(){
             CKEDITOR.replace('editor-objektif');
 
@@ -679,7 +737,7 @@
             }
 
             //# Update Mode
-            if(['update','preview','review'].includes($mode)){
+            if(['update','preview','review','copy'].includes($mode)){
                 let { instances: ckEditorInstance } = CKEDITOR;
 
                 if(ckEditorInstance['editor-objektif']){
@@ -799,7 +857,7 @@
 							window.location.reload();
 						});
                 </script>';
-            }  
+            }
         }
     ?>
 </body>

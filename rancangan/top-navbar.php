@@ -1,13 +1,25 @@
 <?php
+    $profilePicture = 'img/default_avatar.jpeg';
+    
     $utils = new Controller('RETURN');
     $accountID = ($_SESSION['id'] ?? null);
-    $profilePicture = 'img/default_avatar.jpeg';
     $accountData = $utils->fetchRow("SELECT * FROM `pengguna` WHERE `id` = '".$accountID."'");
+    $accountPicture = $utils->fetchRow("SELECT image FROM `maklumat_guru` WHERE id_pengguna = ".$accountID);
+
+    if(!empty($accountPicture)){
+        $profilePicture = '../dist/img/profile/'.$accountPicture->image;
+    }
 ?>
 <nav class="navbar navbar-expand navbar-light navbar-bg">
     <a class="sidebar-toggle js-sidebar-toggle">
         <i class="hamburger align-self-center"></i>
     </a>
+
+    <ul class="navbar-nav">
+        <li class="nav-item px-2 dropdown">
+            <a class="nav-link bg-secondary rounded-5 text-white px-3" href="../pengguna/index.php">My Dashboard</a>
+        </li>
+    </ul>
 
     <div class="navbar-collapse collapse">
         <ul class="navbar-nav navbar-align">            
@@ -17,8 +29,10 @@
                 </a>
 
                 <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
-                    <img style="object-fit: cover;" src="<?php echo $profilePicture; ?>" class="avatar img-fluid rounded me-1" alt="Charles Hall" />
-                    <span class="text-dark"><?php echo (!empty($accountData) ? $accountData->fullname : '') ?></span>
+                    <img style="object-fit: contain;" src="<?php echo $profilePicture; ?>" class="avatar img-fluid rounded-circle me-1" alt="<?php echo (!empty($accountData) ? $accountData->fullname : '') ?>" />
+                    <span class="text-dark">
+                        <?php echo (!empty($accountData) ? $accountData->fullname : '') ?>
+                    </span>
                 </a>
 
                 <div class="dropdown-menu dropdown-menu-end">

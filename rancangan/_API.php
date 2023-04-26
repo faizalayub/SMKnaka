@@ -210,7 +210,7 @@ class Controller {
             (object)[
                 'id' => 0,
                 'color' => 'bg-secondary',
-                'text' => 'Belum Dinilai'
+                'text' => 'Belum Disemak'
             ],
             (object)[
                 'id' => 1,
@@ -244,6 +244,23 @@ class Controller {
         $signature = (isset($_POST['signature']) ? $_POST['signature'] : '');
 
         $response = $this->runQuery("UPDATE `rph_rancangan` SET `komen_penilai` = '$summary', `status_penilai` = '$status', `signature` = '$signature', `tarikh_penilai` = current_timestamp() WHERE `rph_rancangan`.`id` = ".$id);
+
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response;
+        }
+    }
+
+    function copyForm(){
+        $response = (object) ['status' => 200, 'data' => [], 'message' => ''];
+        $userSessionID = random_int(100000, 999999);
+        $forminput = (isset($_POST['forminput']) ? $_POST['forminput'] : NULL);
+
+        $this->runQuery("INSERT INTO `rph_copyvalue` (`id`, `json`) VALUES ($userSessionID, '".$forminput."')");
+
+        $response->data = $userSessionID;
 
         if($this->returnType == 1){
             header('Content-type: application/json');
