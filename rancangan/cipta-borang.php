@@ -70,8 +70,6 @@
 			}
 		}
 
-		// echo json_encode($dataset->bbm);exit;
-
 		switch($userRoleID){
 			case 2: $reviewerRole = 5; break;
 			case 5: $reviewerRole = 6; break;
