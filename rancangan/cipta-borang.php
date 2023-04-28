@@ -108,7 +108,7 @@
 		}
 
 		.cke_contents{
-			height: 80px !important;
+			height: 120px !important;
 		}
 
 		.button-footer-container{
@@ -182,7 +182,7 @@
 										<!-- Layer -->
 										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TINGKATAN</label>
-											<div class="col-sm-2">
+											<div class="col-sm-10">
 												<select name="ref_school_level" id="tingkatan_id" class="form-control">
 													<?php
 													if((array)$dataset){
@@ -205,7 +205,10 @@
 													?>
 												</select>
 											</div>
+										</div>
 
+										<!-- Layer -->
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">KELAS</label>
 											<div class="col-sm-2">
 												<select name="ref_classroom" id="kelasId" class="form-control" required>
@@ -232,7 +235,7 @@
 											</div>
 
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">SUBJEK</label>
-											<div class="col-sm-2">
+											<div class="col-sm-6">
 												<select name="ref_subject" id="subjek" class="form-control" required>
 													<?php
 														if((array)$dataset){
@@ -255,8 +258,6 @@
 													?>
 												</select>
 											</div>
-
-											
 										</div>
 
 										<!-- Layer -->
@@ -279,19 +280,13 @@
 
 										<!-- Layer -->
 										<div class="mb-3 row main-field-wrapper">
-											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TEMA</label>
-											<div class="col-sm-2">
-												<input class="form-control" name="subject_theme" type="text" required list="subject_theme" placeholder="Masukkan Tema Subjek" autocomplete="off" value="<?php echo (isset($dataset->tema) ? $dataset->tema : ''); ?>"/>
-												<datalist id="subject_theme"></datalist>
-											</div>
-
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">HARI</label>
 											<div class="col-sm-2">
 												<input id="date-selected-info" type="text" readonly value="-" class="form-control"/>
 											</div>
 
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">MINGGU</label>
-											<div class="col-sm-2">
+											<div class="col-sm-6">
 												<select name="ref_educationweek" class="form-control" required>
 													<?php
 														if((array)$dataset){
@@ -318,20 +313,35 @@
 
 										<!-- Layer -->
 										<div class="mb-3 row main-field-wrapper">
+											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TEMA</label>
+											<div class="col-sm-10">
+												<input class="form-control" name="subject_theme" type="text" required list="subject_theme" placeholder="Masukkan Tema Subjek" autocomplete="off" value="<?php echo (isset($dataset->tema) ? $dataset->tema : ''); ?>"/>
+												<datalist id="subject_theme"></datalist>
+											</div>
+										</div>
+
+										<!-- Layer -->
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TAJUK</label>
-											<div class="col-sm-2">
+											<div class="col-sm-10">
 												<input class="form-control" name="subject_title" type="text" required list="subject_title" placeholder="Masukkan Tajuk Subjek" autocomplete="off" value="<?php echo (isset($dataset->tajuk) ? $dataset->tajuk : ''); ?>"/>
 												<datalist id="subject_title"></datalist>
 											</div>
+										</div>
 
+										<!-- Layer -->
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">STANDARD KANDUNGAN</label>
-											<div class="col-sm-2">
+											<div class="col-sm-10">
 												<input class="form-control" name="content_standard" list="content_standard" type="text" required placeholder="Masukkan Standard Kandungan" autocomplete="off" value="<?php echo (isset($dataset->standard_kandungan) ? $dataset->standard_kandungan : ''); ?>"/>
 												<datalist id="content_standard"></datalist>
 											</div>
+										</div>
 
+										<!-- Layer -->
+										<div class="mb-3 row main-field-wrapper">
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">STANDARD PEMBELAJARAN</label>
-											<div class="col-sm-2">
+											<div class="col-sm-10">
 												<input class="form-control" name="subject_standard" list="subject_standard" type="text" required placeholder="Masukkan Standard Pembelajaran" autocomplete="off" value="<?php echo (isset($dataset->standard_pembelajaran) ? $dataset->standard_pembelajaran : ''); ?>"/>
 												<datalist id="subject_standard"></datalist>
 											</div>
