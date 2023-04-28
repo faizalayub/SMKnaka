@@ -823,7 +823,7 @@
 
 			setTimeout(function(){
 				formEl.removeClass('content-loader');
-			},300);
+			},600);
         });
     </script>
 

@@ -6,21 +6,30 @@
     if($currentrole == 2){
         $sidebarMenu[] = (object) ['label' => 'Cipta RPH', 'icon' => 'file-text', 'path' => 'cipta-borang.php'];
         $sidebarMenu[] = (object) ['label' => 'Paparan Borang Harian', 'icon' => 'eye', 'path' => 'lihat-borang.php'];
-        $sidebarMenu[] = (object) ['label' => 'Kemaskini Pilihan', 'icon' => 'plus-circle', 'path' => 'cipta-pilihan.php'];
+        $sidebarMenu[] = (object) ['label' => 'Tajuk', 'icon' => 'file-plus', 'path' => 'kemaskini-tajuk.php'];
+        $sidebarMenu[] = (object) ['label' => 'Tema', 'icon' => 'file-plus', 'path' => 'kemaskini-tema.php'];
+        $sidebarMenu[] = (object) ['label' => 'Std. Pembelajaran', 'icon' => 'file-plus', 'path' => 'kemaskini-standard-pembelajaran.php'];
+        $sidebarMenu[] = (object) ['label' => 'Std. Kandungan', 'icon' => 'file-plus', 'path' => 'kemaskini-standard-kandungan.php'];
     }
 
     if($currentrole == 5){
         $sidebarMenu[] = (object) ['label' => 'Cipta RPH', 'icon' => 'file-text', 'path' => 'cipta-borang.php'];
         $sidebarMenu[] = (object) ['label' => 'Paparan Borang Harian', 'icon' => 'eye', 'path' => 'lihat-borang.php'];
         $sidebarMenu[] = (object) ['label' => 'Semak & Nilai', 'icon' => 'edit-3', 'path' => 'semak-borang.php'];
-        $sidebarMenu[] = (object) ['label' => 'Kemaskini Pilihan', 'icon' => 'plus-circle', 'path' => 'cipta-pilihan.php'];
+        $sidebarMenu[] = (object) ['label' => 'Tajuk', 'icon' => 'file-plus', 'path' => 'kemaskini-tajuk.php'];
+        $sidebarMenu[] = (object) ['label' => 'Tema', 'icon' => 'file-plus', 'path' => 'kemaskini-tema.php'];
+        $sidebarMenu[] = (object) ['label' => 'Std. Pembelajaran', 'icon' => 'file-plus', 'path' => 'kemaskini-standard-pembelajaran.php'];
+        $sidebarMenu[] = (object) ['label' => 'Std. Kandungan', 'icon' => 'file-plus', 'path' => 'kemaskini-standard-kandungan.php'];
     }
 
     if($currentrole == 6){
         $sidebarMenu[] = (object) ['label' => 'Cipta RPH', 'icon' => 'file-text', 'path' => 'cipta-borang.php'];
         $sidebarMenu[] = (object) ['label' => 'Paparan Borang Harian', 'icon' => 'eye', 'path' => 'lihat-borang.php'];
         $sidebarMenu[] = (object) ['label' => 'Semak & Nilai', 'icon' => 'edit-3', 'path' => 'semak-borang.php'];
-        $sidebarMenu[] = (object) ['label' => 'Kemaskini Pilihan', 'icon' => 'plus-circle', 'path' => 'cipta-pilihan.php'];
+        $sidebarMenu[] = (object) ['label' => 'Tajuk', 'icon' => 'file-plus', 'path' => 'kemaskini-tajuk.php'];
+        $sidebarMenu[] = (object) ['label' => 'Tema', 'icon' => 'file-plus', 'path' => 'kemaskini-tema.php'];
+        $sidebarMenu[] = (object) ['label' => 'Std. Pembelajaran', 'icon' => 'file-plus', 'path' => 'kemaskini-standard-pembelajaran.php'];
+        $sidebarMenu[] = (object) ['label' => 'Std. Kandungan', 'icon' => 'file-plus', 'path' => 'kemaskini-standard-kandungan.php'];
     }
 ?>
 
