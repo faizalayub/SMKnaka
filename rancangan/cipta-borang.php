@@ -31,6 +31,15 @@
 			</style>
 		';
 
+		$viewStyling = '
+			<style>
+				.form-control {border-radius: 0px;border-top: none !important;border-left: none !important;border-right: none !important;}
+				.pc-element .pc-close { opacity: 0 !important; padding: 0 8px 0 0 !important; }
+				.cke_top.cke_reset_all { display: none; }
+				.cke_contents.cke_reset iframe { border-left: none !important; }
+			</style>
+		';
+
 		if($mode == 'update'){
 			$dataset = $API->fetchRow("SELECT * FROM `rph_rancangan` WHERE id = ".$id);
 
@@ -48,7 +57,9 @@
 				$hiddenSection[] = 'GuruPenilai';
 				$showReviewArea = true;
 
-				if(isset($_GET['iframe'])){ echo $iframeStyling; }
+				if(isset($_GET['iframe'])){
+					echo $iframeStyling;
+				}
 			}
 
 			//# Form owner only can view completed review result
@@ -58,7 +69,9 @@
 					$showReviewArea = true;
 				}
 
-				if(isset($_GET['iframe'])){ echo $iframeStyling; }
+				if(isset($_GET['iframe'])){
+					echo $iframeStyling;
+				}
 			}
 		}
 
@@ -74,6 +87,10 @@
 			case 2: $reviewerRole = 5; break;
 			case 5: $reviewerRole = 6; break;
 		}
+
+		if($mode == 'preview'){
+			echo $viewStyling;
+		}
     ?>
 
 	<style>
@@ -82,6 +99,12 @@
 			border-radius: 3px;
 			padding: 2em;
 			border: solid 1px var(--bs-gray-200);
+		}
+
+		@media print {
+			.onprint-hidden-section {
+				display: none !important;
+			}
 		}
 
 		.cke_contents{
@@ -136,8 +159,16 @@
 							<strong>Cipta</strong> Perancangan Harian
 						</div>
 
-						<div class="col-auto ms-auto text-end mt-n1">
-							<button type="button" class="btn btn-primary" onclick="copyForm()">Salin Borang</button>
+						<div class="onprint-hidden-section col-auto ms-auto text-end mt-n1">
+							<?php
+								if($mode != 'create' && $mode != 'copy'){
+									echo '<button type="button" class="btn btn-light bg-white me-2" onclick="printForm()">Cetak Borang</button>';
+								}
+
+								if(!isset($_GET['iframe'])){
+									echo '<button type="button" class="btn btn-primary" onclick="copyForm()">Salin Borang</button>';
+								}
+							?>
 						</div>
 					</div>
 
@@ -150,6 +181,31 @@
 
 										<!-- Layer -->
 										<div class="mb-3 row main-field-wrapper">
+											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TINGKATAN</label>
+											<div class="col-sm-2">
+												<select name="ref_school_level" id="tingkatan_id" class="form-control">
+													<?php
+													if((array)$dataset){
+														$options = $API->collectLevel();
+
+														if(!empty($options)){
+															array_unshift($options , (object)['id' => null]);
+
+															foreach($options as $value){
+																$selected = (isset($dataset->id_tingkatan) && ($dataset->id_tingkatan == $value->id) ? 'selected' : '');
+
+																if($value->id == null){
+																	echo "<option ".$selected." value=''>Pilih Tingkatan</option>";
+																}else{
+																	echo "<option ".$selected." value='".$value->id."'>".$value->id."-".$value->nama_tingkatan ?? ''."</option>";
+																}
+															}
+														}
+													}
+													?>
+												</select>
+											</div>
+
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">KELAS</label>
 											<div class="col-sm-2">
 												<select name="ref_classroom" id="kelasId" class="form-control" required>
@@ -200,30 +256,7 @@
 												</select>
 											</div>
 
-											<label class="col-form-label col-sm-2 text-sm-end fw-bold">TINGKATAN</label>
-											<div class="col-sm-2">
-												<select name="ref_school_level" id="tingkatan_id" class="form-control">
-													<?php
-													if((array)$dataset){
-														$options = $API->collectLevel();
-
-														if(!empty($options)){
-															array_unshift($options , (object)['id' => null]);
-
-															foreach($options as $value){
-																$selected = (isset($dataset->id_tingkatan) && ($dataset->id_tingkatan == $value->id) ? 'selected' : '');
-
-																if($value->id == null){
-																	echo "<option ".$selected." value=''>Pilih Tingkatan</option>";
-																}else{
-																	echo "<option ".$selected." value='".$value->id."'>".$value->id."-".$value->nama_tingkatan ?? ''."</option>";
-																}
-															}
-														}
-													}
-													?>
-												</select>
-											</div>
+											
 										</div>
 
 										<!-- Layer -->
@@ -293,12 +326,14 @@
 
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">STANDARD KANDUNGAN</label>
 											<div class="col-sm-2">
-												<input class="form-control" name="content_standard" type="text" required placeholder="Masukkan Standard Kandungan" autocomplete="off" value="<?php echo (isset($dataset->standard_kandungan) ? $dataset->standard_kandungan : ''); ?>"/>
+												<input class="form-control" name="content_standard" list="content_standard" type="text" required placeholder="Masukkan Standard Kandungan" autocomplete="off" value="<?php echo (isset($dataset->standard_kandungan) ? $dataset->standard_kandungan : ''); ?>"/>
+												<datalist id="content_standard"></datalist>
 											</div>
 
 											<label class="col-form-label col-sm-2 text-sm-end fw-bold">STANDARD PEMBELAJARAN</label>
 											<div class="col-sm-2">
-												<input class="form-control" name="subject_standard" type="text" required placeholder="Masukkan Standard Pembelajaran" autocomplete="off" value="<?php echo (isset($dataset->standard_pembelajaran) ? $dataset->standard_pembelajaran : ''); ?>"/>
+												<input class="form-control" name="subject_standard" list="subject_standard" type="text" required placeholder="Masukkan Standard Pembelajaran" autocomplete="off" value="<?php echo (isset($dataset->standard_pembelajaran) ? $dataset->standard_pembelajaran : ''); ?>"/>
+												<datalist id="subject_standard"></datalist>
 											</div>
 										</div>
 
@@ -469,8 +504,10 @@
 			"ref_reviewer"     : "penilai",
 		};
 
-        let datalistTheme  = $('datalist[id="subject_theme"]');
-        let datalistTitle  = $('datalist[id="subject_title"]');
+        let datalistTheme                = $('datalist[id="subject_theme"]');
+        let datalistTitle                = $('datalist[id="subject_title"]');
+        let datalistStandardKandungan    = $('datalist[id="content_standard"]');
+        let datalistStandardPembelajaran = $('datalist[id="subject_standard"]');
 
         let dropdownEduLevel  = $('[name="ref_school_level"]');
         let dropdownClassroom = $('[name="ref_classroom"]');
@@ -571,9 +608,13 @@
                 let value = e.target.value;
                 let getTheme = await doRequest({ function: 'themeBySubject', level: dropdownEduLevel.val(), subject: dropdownSubject.val() });
                 let getTitle = await doRequest({ function: 'titleBySubject', level: dropdownEduLevel.val(), subject: dropdownSubject.val() });
+                let getKandungan = await doRequest({ function: 'stdKandunganBySubject', level: dropdownEduLevel.val(), subject: dropdownSubject.val() });
+                let getPembelajaran = await doRequest({ function: 'stdPembelajaranBySubject', level: dropdownEduLevel.val(), subject: dropdownSubject.val() });
 
                 datalistTheme.html('');
                 datalistTitle.html('');
+                datalistStandardKandungan.html('');
+                datalistStandardPembelajaran.html('');
 
                 getTheme.forEach(c => {
                     datalistTheme.append(`<option value="${ c.tema }">`);
@@ -581,6 +622,14 @@
 
                 getTitle.forEach(c => {
                     datalistTitle.append(`<option value="${ c.tajuk }">`);
+                });
+
+                getKandungan.forEach(c => {
+                    datalistStandardKandungan.append(`<option value="${ c.standard_kandungan }">`);
+                });
+
+                getPembelajaran.forEach(c => {
+                    datalistStandardPembelajaran.append(`<option value="${ c.standard_pembelajaran }">`);
                 });
             });
         };
@@ -704,6 +753,10 @@
 			}, 'POST');
 
 			window.open(`${ window.location.pathname }?copy=${ requestResult }`, '_blank');
+		}
+
+		function printForm(){
+			window.print();
 		}
 
         $(document).ready(function(){

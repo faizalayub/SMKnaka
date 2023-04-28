@@ -160,6 +160,46 @@ class Controller {
         }
     }
 
+    function stdKandunganBySubject($param){
+        $response = (object) ['status' => 200, 'data' => [], 'message' => ''];
+
+        if(isset($param->level) && isset($param->subject)){
+            $response->status = 200;
+            $response->message = 'done';
+            $response->data = $this->fetchRows("SELECT * FROM `tb_standard_kandungan` WHERE `id_tingkatan` = $param->level AND `id_subjek` = $param->subject");
+        }else{
+            $response->status = 400;
+            $response->message = 'Parameter not found';
+        }
+
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response->data;
+        }
+    }
+
+    function stdPembelajaranBySubject($param){
+        $response = (object) ['status' => 200, 'data' => [], 'message' => ''];
+
+        if(isset($param->level) && isset($param->subject)){
+            $response->status = 200;
+            $response->message = 'done';
+            $response->data = $this->fetchRows("SELECT * FROM `tb_standard_pembelajaran` WHERE `id_tingkatan` = $param->level AND `id_subjek` = $param->subject");
+        }else{
+            $response->status = 400;
+            $response->message = 'Parameter not found';
+        }
+
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response->data;
+        }
+    }
+
     function themeBySubject($param){
         $response = (object) ['status' => 200, 'data' => [], 'message' => ''];
 

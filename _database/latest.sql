@@ -2862,11 +2862,6 @@ CREATE TABLE `role` (
   `id_status` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `rph_copyvalue` (
-  `id` INT NOT NULL AUTO_INCREMENT ,
-  `json` TEXT NOT NULL , PRIMARY KEY (`id`)
-) ENGINE = InnoDB;
-
 --
 -- Dumping data for table `role`
 --
