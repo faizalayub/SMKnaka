@@ -35,7 +35,7 @@
 
 <nav id="sidebar" class="sidebar js-sidebar">
     <div class="sidebar-content js-simplebar">
-        <a class="sidebar-brand" href="index.php"><span class="align-middle">Sistem RPH</span></a>
+        <a class="sidebar-brand" href="index.php"><span class="align-middle">e-RPH</span></a>
         <ul class="sidebar-nav">
             <?php
                 $hasActiveTab = false;

@@ -5,6 +5,12 @@ class Controller {
         $this->dbname     = 'dbsmkn';
         $this->dbuser     = 'root';
         $this->dbpass     = '';
+
+        // $this->host       = 'localhost:3306';
+        // $this->dbname     = 'keacom_dbproud';
+        // $this->dbuser     = 'keacom_usrproud';
+        // $this->dbpass     = 'smknkea7019';
+
         $this->returnType = ($return_mode == 'REQUEST' ? 1 : 0);
     }
 
@@ -187,6 +193,56 @@ class Controller {
             $response->status = 200;
             $response->message = 'done';
             $response->data = $this->fetchRows("SELECT * FROM `tb_standard_pembelajaran` WHERE `id_tingkatan` = $param->level AND `id_subjek` = $param->subject");
+        }else{
+            $response->status = 400;
+            $response->message = 'Parameter not found';
+        }
+
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response->data;
+        }
+    }
+
+    function stdKandunganByTitle($param){
+        $response = (object) ['status' => 200, 'data' => [], 'message' => ''];
+
+        if(isset($param->title)){
+            $response->status = 200;
+            $response->message = 'done';
+            
+            $subjectTitleID = $this->fetchRow("SELECT * FROM `tb_tajuk` WHERE tajuk = '".$param->title."'");
+
+            if(!empty($subjectTitleID)){
+                $response->data = $this->fetchRows("SELECT * FROM `tb_standard_kandungan` WHERE `id_tajuk` = $subjectTitleID->id");
+            }
+        }else{
+            $response->status = 400;
+            $response->message = 'Parameter not found';
+        }
+
+        if($this->returnType == 1){
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }else{
+            return $response->data;
+        }
+    }
+
+    function stdPembelajaranByKandungan($param){
+        $response = (object) ['status' => 200, 'data' => [], 'message' => ''];
+
+        if(isset($param->title)){
+            $response->status = 200;
+            $response->message = 'done';
+            
+            $kandungan = $this->fetchRow("SELECT * FROM `tb_standard_kandungan` WHERE standard_kandungan = '".$param->title."'");
+
+            if(!empty($kandungan)){
+                $response->data = $this->fetchRows("SELECT * FROM `tb_standard_pembelajaran` WHERE `id_sk` = $kandungan->id");
+            }
         }else{
             $response->status = 400;
             $response->message = 'Parameter not found';

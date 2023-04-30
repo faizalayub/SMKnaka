@@ -527,6 +527,7 @@
 
         let subjectTheme      = $('[name="subject_theme"]');
         let subjectTitle      = $('[name="subject_title"]');
+        let subjectSK         = $('[name="content_standard"]');
         let effectiveDate     = $('[name="effective_date"]');
         let dateInfoAlert     = $('#date-selected-info');
         let dayStringLabel    = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
@@ -618,13 +619,9 @@
                 let value = e.target.value;
                 let getTheme = await doRequest({ function: 'themeBySubject', level: dropdownEduLevel.val(), subject: dropdownSubject.val() });
                 let getTitle = await doRequest({ function: 'titleBySubject', level: dropdownEduLevel.val(), subject: dropdownSubject.val() });
-                let getKandungan = await doRequest({ function: 'stdKandunganBySubject', level: dropdownEduLevel.val(), subject: dropdownSubject.val() });
-                let getPembelajaran = await doRequest({ function: 'stdPembelajaranBySubject', level: dropdownEduLevel.val(), subject: dropdownSubject.val() });
 
                 datalistTheme.html('');
                 datalistTitle.html('');
-                datalistStandardKandungan.html('');
-                datalistStandardPembelajaran.html('');
 
                 getTheme.forEach(c => {
                     datalistTheme.append(`<option value="${ c.tema }">`);
@@ -633,12 +630,34 @@
                 getTitle.forEach(c => {
                     datalistTitle.append(`<option value="${ c.tajuk }">`);
                 });
+            });
+        };
+
+		let setupSubjectTitle = function(){
+            subjectTitle.on('input', async function(e){
+                let getKandungan = await doRequest({
+					function: 'stdKandunganByTitle',
+					title: e.target.value
+				});
+
+                datalistStandardKandungan.html('');
 
                 getKandungan.forEach(c => {
                     datalistStandardKandungan.append(`<option value="${ c.standard_kandungan }">`);
                 });
+            });
+        };
 
-                getPembelajaran.forEach(c => {
+		let setupStandardKandungan = function(){
+            subjectSK.on('input', async function(e){
+                let response = await doRequest({
+					function: 'stdPembelajaranByKandungan',
+					title: e.target.value
+				});
+
+                datalistStandardPembelajaran.html('');
+
+                response.forEach(c => {
                     datalistStandardPembelajaran.append(`<option value="${ c.standard_pembelajaran }">`);
                 });
             });
@@ -786,6 +805,12 @@
 
                 //# Dropdown Init (Subject)
                 setupSubjectDropdown();
+
+				//# Datalist Init (Subject Title)
+                setupSubjectTitle();
+
+				//# Datalist Init (Standard Kandungan)
+                setupStandardKandungan();
                 
                 //# Dropdown Init (Reviewer)
                 setupReviewerDropdown();
@@ -817,6 +842,12 @@
 
                 //# Dropdown Init (Subject)
                 setupSubjectDropdown();
+				
+				//# Datalist Init (Subject Title)
+                setupSubjectTitle();
+
+				//# Datalist Init (Standard Kandungan)
+                setupStandardKandungan();
 
 				//# Dropdown Init (Reviewer)
                 setupReviewerDropdown();
