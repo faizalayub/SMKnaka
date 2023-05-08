@@ -99,11 +99,13 @@
 													$dataWeekSchool= $API->fetchRow("SELECT * FROM `rph_minggu` WHERE id_minggu = ".$value->minggu_sekolah);
 													$dataReviewer  = $API->fetchRow("SELECT * FROM `pengguna` WHERE id = ".$value->penilai);
 
-													$updateButton .= '<a href="#" onclick="toggleReview('.$value->id.')" class="p-2 rounded bg-info text-white"><i class="align-middle" data-feather="eye"></i></a> ';
+													$updateButton .= '<a href="#" onclick="toggleReview('.$value->id.')" class="p-2 rounded bg-info text-white" title="Lihat Borang"><i class="align-middle" data-feather="eye"></i></a> ';
 
 													if($value->status_penilai != 1){
-														$updateButton .= '<a href="./cipta-borang.php?id='.$value->id.'" class="p-2 rounded bg-primary text-white"><i class="align-middle" data-feather="edit-2"></i></a> ';
+														$updateButton .= '<a href="./cipta-borang.php?id='.$value->id.'" class="p-2 rounded bg-primary text-white" title="Kemaskini Borang"><i class="align-middle" data-feather="edit-2"></i></a> ';
 													}
+
+													$updateButton .= '<a href="./cipta-borang.php?id='.$value->id.'&trigger=copy" class="p-2 rounded bg-warning text-white" title="Salin Borang"><i class="align-middle" data-feather="copy"></i></a> ';
 
 													if(!empty($value->bbm)){
 														$dataBBM = $API->fetchRows("SELECT * FROM `tb_bbm` WHERE `id` IN ($value->bbm)");

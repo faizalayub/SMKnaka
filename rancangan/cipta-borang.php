@@ -13,6 +13,7 @@
 		$API             = new Controller('RETURN');
 		$id              = (isset($_GET['id']) ? $_GET['id'] : null);
 		$mode            = (isset($_GET['id']) ? 'update' : 'create');
+		$trigger         = (isset($_GET['trigger']) ? $_GET['trigger'] : null);
 		$userRoleID      = $_SESSION['role'];
 		$userSessionID   = $_SESSION['id'];
 		$reviewerRole    = 5;
@@ -107,10 +108,6 @@
 			}
 		}
 
-		.cke_contents{
-			height: 120px !important;
-		}
-
 		.button-footer-container{
 			display: flex;
 			align-items: center;
@@ -165,7 +162,7 @@
 									echo '<button type="button" class="btn btn-light bg-white me-2" onclick="printForm()">Cetak Borang</button>';
 								}
 
-								if(!isset($_GET['iframe'])){
+								if(!isset($_GET['iframe']) && !isset($_GET['copy'])){
 									echo '<button type="button" class="btn btn-primary" onclick="copyForm()">Salin Borang</button>';
 								}
 							?>
@@ -494,6 +491,7 @@
 	<script type = "text/javascript">
 		var formEl = $('form');
         var $mode = `<?php echo $mode; ?>`;
+        var $trigger = `<?php echo $trigger; ?>`;
         var updateDataset  = JSON.parse(`<?php echo json_encode($dataset); ?>`);
 		var FormToDB = {
 			"ref_school_level" : "id_tingkatan",
@@ -756,7 +754,7 @@
 			}
 		};
 
-		async function copyForm(){
+		async function copyForm(windowtab = '_blank'){
 			let { instances: ckEditorInstance } = CKEDITOR;
 			let formArray = formEl.serializeArray();
 			let formStructured = {};
@@ -781,7 +779,7 @@
 				forminput: JSON.stringify(formStructured)
 			}, 'POST');
 
-			window.open(`${ window.location.pathname }?copy=${ requestResult }`, '_blank');
+			window.open(`${ window.location.pathname }?copy=${ requestResult }`, windowtab);
 		}
 
 		function printForm(){
@@ -789,9 +787,13 @@
 		}
 
         $(document).ready(function(){
-            CKEDITOR.replace('editor-objektif');
+            CKEDITOR.replace('editor-objektif', {
+				height: '80px',
+			});
 
-            CKEDITOR.replace('editor-aktiviti');
+            CKEDITOR.replace('editor-aktiviti', {
+				height: '150px',
+			});
 
             if(['create'].includes($mode)){
                 //# Dropdown Init (Tingkatan)
@@ -865,6 +867,13 @@
 			setTimeout(function(){
 				formEl.removeClass('content-loader');
 			},600);
+
+			//# Execute Trigger Click
+			setTimeout(() => {
+				if($trigger == 'copy'){
+					copyForm('_self');
+				}
+			}, 800);
         });
     </script>
 
@@ -888,12 +897,16 @@
             $subject_activity  = (isset($_POST['subject_activity']) ? $_POST['subject_activity'] : '');
             $subject_outcomes  = (isset($_POST['subject_outcomes']) ? $_POST['subject_outcomes'] : '');
 
+			if($mode == 'copy'){
+				$dataset = null;
+			}
+
 			if((array)$dataset){
 				//# Update Query
 				$response = $API->runQuery("UPDATE `rph_rancangan` SET `id_kelasLengkap` = '$ref_classroom', `id_subjek` = '$ref_subject', `tarikh` = '$effective_date', `masa_mula` = '$start_time', `masa_tamat` = '$end_time', `tema` = '$subject_theme', `tajuk` = '$subject_title', `standard_kandungan` = '$content_standard', `standard_pembelajaran` = '$subject_standard', `objektif` = '$subject_objective', `aktiviti` = '$subject_activity', `refleksi` = '$subject_outcomes', `changes_date` = current_timestamp(), `BBM` = '$teaching_bbm', `penilai` = '$ref_reviewer', `minggu_sekolah` = '$ref_educationweek', `id_tingkatan` = '$ref_school_level', `komen_penilai` = '', `status_penilai` = '0', `signature` = NULL, `tarikh_penilai` = NULL WHERE `rph_rancangan`.`id` = ".$id);
 			}else{
 				//# Create Query
-				if($mode == 'create'){
+				if($mode == 'create' || $mode == 'copy'){
 					$tableColumns = "`id`, `id_pengguna`, `id_kelasLengkap`, `id_subjek`, `tarikh`, `masa_mula`, `masa_tamat`, `tema`, `tajuk`, `standard_kandungan`, `standard_pembelajaran`, `objektif`, `aktiviti`, `refleksi`, `bahan_bantuan`, `created_date`, `changes_date`, `bbm`, `penilai`, `minggu_sekolah`, `id_tingkatan`";
 					
 					$tableValues = "NULL, '$userSessionID', '$ref_classroom', '$ref_subject', '$effective_date', '$start_time', '$end_time', '$subject_theme', '$subject_title', '$content_standard', '$subject_standard', '$subject_objective', '$subject_activity', '$subject_outcomes', '', current_timestamp(), current_timestamp(), '$teaching_bbm', '$ref_reviewer', '$ref_educationweek', '$ref_school_level'";
